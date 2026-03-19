@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Redirect the site root and /accounts (no trailing slash) to the login page.
+    path('', RedirectView.as_view(pattern_name='login', permanent=False)),
+    path('accounts', RedirectView.as_view(pattern_name='login', permanent=False)),
     path('accounts/', include('accounts.urls')),
 ]

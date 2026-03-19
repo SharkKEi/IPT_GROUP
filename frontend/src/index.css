@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .bg-animated {
+    background: linear-gradient(135deg, #0f172a, #1e40af, #0ea5e9, #14b8a6);
+    background-size: 600% 600%;
+    animation: gradient-xy 16s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 10s ease-in-out infinite;
+  }
+}
+
+@keyframes gradient-xy {
+  0% {
+    background-position: 0% 55%;
+  }
+  50% {
+    background-position: 100% 45%;
+  }
+  100% {
+    background-position: 0% 55%;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-22px) translateX(12px);
+  }
+}
