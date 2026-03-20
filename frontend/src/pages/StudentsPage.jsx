@@ -25,7 +25,7 @@ function Toast({ msg, type, onClose }) {
   );
 }
 
-export default function StudentsPage() {
+export default function StudentsPage({ nightMode, onToggleNight }) {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,6 +167,15 @@ export default function StudentsPage() {
           </div>
         </div>
       </div>
+
+      {/* Night mode toggle */}
+      <button
+        onClick={onToggleNight}
+        className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20"
+        title="Toggle night mode"
+      >
+        {nightMode ? '☀️' : '🌙'}
+      </button>
     </div>
   );
 }

@@ -47,7 +47,7 @@ function ConfirmModal({ open, message, onConfirm, onCancel }) {
   );
 }
 
-export default function EnrollmentsPage() {
+export default function EnrollmentsPage({ nightMode, onToggleNight }) {
   const navigate = useNavigate();
 
   const [students, setStudents] = useState([]);
@@ -457,6 +457,15 @@ export default function EnrollmentsPage() {
         onConfirm={handleDrop}
         onCancel={() => setConfirmDrop(null)}
       />
+
+      {/* Night mode toggle */}
+      <button
+        onClick={onToggleNight}
+        className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20"
+        title="Toggle night mode"
+      >
+        {nightMode ? '☀️' : '🌙'}
+      </button>
     </div>
   );
 }

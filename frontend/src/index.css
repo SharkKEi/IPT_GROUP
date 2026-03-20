@@ -3,10 +3,51 @@
 @tailwind utilities;
 
 @layer utilities {
+
+  /* ── Day mode (current teal) ── */
   .bg-animated {
     background: linear-gradient(135deg, #0f172a, #1e40af, #0ea5e9, #14b8a6);
     background-size: 600% 600%;
     animation: gradient-xy 16s ease infinite;
+  }
+
+  /* ── Night mode (midnight navy) ── */
+  .night .bg-animated {
+    background: linear-gradient(135deg, #020817, #0a1628, #0f2044, #0a1628);
+    background-size: 400% 400%;
+    animation: gradient-xy 20s ease infinite;
+  }
+
+  .night .bg-white\/10 {
+    background-color: rgba(15, 25, 50, 0.7) !important;
+  }
+
+  .night .bg-white\/5 {
+    background-color: rgba(15, 25, 50, 0.4) !important;
+  }
+
+  .night .bg-black\/10 {
+    background-color: rgba(5, 10, 25, 0.6) !important;
+  }
+
+  .night .bg-black\/20 {
+    background-color: rgba(5, 10, 25, 0.8) !important;
+  }
+
+  .night .bg-black\/30 {
+    background-color: rgba(5, 10, 25, 0.9) !important;
+  }
+
+  .night .bg-white\/15 {
+    background-color: rgba(60, 100, 200, 0.12) !important;
+  }
+
+  .night .border-white\/10 {
+    border-color: rgba(99, 140, 255, 0.12) !important;
+  }
+
+  .night .border-white\/20 {
+    border-color: rgba(99, 140, 255, 0.2) !important;
   }
 
   .animate-float {
@@ -18,20 +59,33 @@
   0% {
     background-position: 0% 55%;
   }
+
   50% {
     background-position: 100% 45%;
   }
+
   100% {
     background-position: 0% 55%;
   }
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0) translateX(0);
   }
+
   50% {
     transform: translateY(-22px) translateX(12px);
   }
+}
+
+/* Smooth theme transition — only color properties, not layout */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
 }

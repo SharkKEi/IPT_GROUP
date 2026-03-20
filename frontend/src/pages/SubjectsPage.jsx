@@ -25,7 +25,7 @@ function Toast({ msg, type, onClose }) {
   );
 }
 
-export default function SubjectsPage() {
+export default function SubjectsPage({ nightMode, onToggleNight }) {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,6 +174,15 @@ export default function SubjectsPage() {
           </div>
         </div>
       </div>
+
+      {/* Night mode toggle */}
+      <button
+        onClick={onToggleNight}
+        className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20"
+        title="Toggle night mode"
+      >
+        {nightMode ? '☀️' : '🌙'}
+      </button>
     </div>
   );
 }

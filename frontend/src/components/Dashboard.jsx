@@ -47,7 +47,7 @@ function Toast({ msg, type, onClose }) {
   );
 }
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user, onLogout, nightMode, onToggleNight }) {
   const navigate = useNavigate();
   const [toast, setToast] = useState({ msg: '', type: '' });
 
@@ -138,6 +138,7 @@ export default function Dashboard({ user, onLogout }) {
             <p className="mt-2 text-white/70">Hi {user?.username || 'there'}, here's what's happening today.</p>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={onToggleNight} className="rounded-full border border-white/20 bg-white/10 p-2.5 text-white backdrop-blur transition hover:bg-white/20" title="Toggle night mode">{nightMode ? '☀️' : '🌙'}</button>
             <button onClick={onLogout} className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur transition hover:bg-white/20">
               Log out
             </button>
