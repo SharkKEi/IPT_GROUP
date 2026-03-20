@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0);
@@ -34,6 +35,7 @@ function StatCard({ label, value, icon }) {
 }
 
 export default function Dashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const stats = useMemo(
     () => [
       { label: 'Total Students', value: 1287, icon: '🎓' },
@@ -132,18 +134,29 @@ export default function Dashboard({ user, onLogout }) {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-xl backdrop-blur-sm">
-            <h2 className="text-xl font-semibold text-white">Quick Actions</h2>
-            <p className="mt-1 text-sm text-white/70">Jump straight into common tasks.</p>
+            <h2 className="text-xl font-semibold text-white">Core Features</h2>
+            <p className="mt-1 text-sm text-white/70">Everything you need for student enrollment & sectioning.</p>
+
+            <ul className="mt-4 space-y-1 text-white/80 text-sm list-disc pl-5">
+              <li>Add students</li>
+              <li>Add subjects</li>
+              <li>Create sections</li>
+              <li>Enroll student in subject</li>
+              <li>Section capacity control</li>
+              <li>Enrollment summary</li>
+            </ul>
 
             <div className="mt-6 grid gap-3">
               {[
-                { label: 'Add student', emoji: '➕' },
-                { label: 'Create section', emoji: '🧩' },
-                { label: 'Review requests', emoji: '📝' },
-                { label: 'Generate report', emoji: '📊' },
+                { label: 'Add student', emoji: '➕', to: '/students' },
+                { label: 'Add subject', emoji: '📚', to: '/subjects' },
+                { label: 'Create section', emoji: '🧩', to: '/sections' },
+                { label: 'Enroll student', emoji: '🎯', to: '/enrollments' },
+                { label: 'Enrollment summary', emoji: '📊', to: '/summary' },
               ].map((action) => (
                 <button
                   key={action.label}
+                  onClick={() => navigate(action.to)}
                   className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-white transition hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20"
                 >
                   <span>

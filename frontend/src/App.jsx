@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
 import Dashboard from './components/Dashboard.jsx'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import EnrollmentSummaryPage from './pages/EnrollmentSummaryPage.jsx'
+import EnrollmentsPage from './pages/EnrollmentsPage.jsx'
+import SectionsPage from './pages/SectionsPage.jsx'
+import StudentsPage from './pages/StudentsPage.jsx'
+import SubjectsPage from './pages/SubjectsPage.jsx'
 
 function App() {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -8,6 +14,7 @@ function App() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'School Portal';
@@ -33,6 +40,7 @@ function App() {
         setIsLoggedIn(true);
         setUser({ username: data.user || formData.username });
         setError('');
+        navigate('/dashboard');
       } else {
         const data = await response.json().catch(() => ({}));
         setError(data.detail || data.message || 'Invalid credentials');
@@ -44,22 +52,38 @@ function App() {
     }
   };
 
-  if (isLoggedIn) {
-    return (
-      <Dashboard
-        user={user}
-        onLogout={() => {
-          setIsLoggedIn(false);
-          setUser(null);
-          setFormData({ username: '', password: '' });
-          setError('');
-          setRemember(true);
-        }}
-      />
-    );
-  }
+  const handleDemoAdminLogin = async () => {
+    setError('');
+    setLoading(true);
 
-  return (
+    const demoCreds = { username: 'admin', password: 'admin123' };
+
+    try {
+      const response = await fetch('/accounts/api/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...demoCreds, remember }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsLoggedIn(true);
+        setUser({ username: data.user || demoCreds.username });
+        setError('');
+        navigate('/dashboard');
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setError(data.detail || data.message || 'Invalid credentials');
+      }
+    } catch {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginPage = (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39]">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
@@ -81,8 +105,8 @@ function App() {
 
       <div className="relative flex min-h-screen items-center justify-center px-4 py-16">
         <div className="relative w-full max-w-md">
-          <div className="absolute inset-0 bg-white/10 blur-3xl rounded-3xl" />
-          <div className="relative z-10 rounded-3xl bg-black/30 border border-white/10 shadow-2xl backdrop-blur-xl p-10">
+          <div className="absolute inset-0 bg-white/10 rounded-3xl" />
+          <div className="relative z-10 rounded-3xl bg-black/30 border border-white/10 shadow-2xl p-10">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold text-white">Login</h1>
               <p className="text-sm text-white/70 mt-2">Use your credentials to access the dashboard.</p>
@@ -166,6 +190,17 @@ function App() {
                 </a>
               </div>
 
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={handleDemoAdminLogin}
+                  disabled={loading}
+                  className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-black/10 backdrop-blur transition hover:bg-white/10 disabled:opacity-50"
+                >
+                  Demo admin
+                </button>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
@@ -182,7 +217,86 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage}
+      />
+      <Route
+        path="/dashboard"
+        element={
+          isLoggedIn ? (
+            <Dashboard
+              user={user}
+              onLogout={() => {
+                setIsLoggedIn(false);
+                setUser(null);
+                setFormData({ username: '', password: '' });
+                setError('');
+                setRemember(true);
+                navigate('/');
+              }}
+            />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/students"
+        element={
+          isLoggedIn ? (
+            <StudentsPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/subjects"
+        element={
+          isLoggedIn ? (
+            <SubjectsPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/sections"
+        element={
+          isLoggedIn ? (
+            <SectionsPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/enrollments"
+        element={
+          isLoggedIn ? (
+            <EnrollmentsPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/summary"
+        element={
+          isLoggedIn ? (
+            <EnrollmentSummaryPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+    </Routes>
+  );
 }
 
 export default App;
