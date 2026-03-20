@@ -36,14 +36,49 @@ function StatCard({ label, value, icon }) {
 
 export default function Dashboard({ user, onLogout }) {
   const navigate = useNavigate();
+  
+  // State to hold our dynamic data
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [activeSections, setActiveSections] = useState(0);
+  const [sectionsList, setSectionsList] = useState([]); // NEW: State for our section overview
+
+  useEffect(() => {
+    // 1. Fetch Total Students
+    fetch('http://127.0.0.1:8000/accounts/api/students/')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setTotalStudents(data.length);
+      })
+      .catch(err => console.error("Failed to fetch students", err));
+
+    // 2. Fetch Enrollments for stats
+    fetch('http://127.0.0.1:8000/accounts/api/enrollments/')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const uniqueSections = new Set(data.map(enrollment => enrollment.section));
+          setActiveSections(uniqueSections.size);
+        }
+      })
+      .catch(err => console.error("Failed to fetch enrollments", err));
+
+    // 3. NEW: Fetch ALL created sections for the Overview List
+    fetch('http://127.0.0.1:8000/accounts/api/sections/')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setSectionsList(data);
+      })
+      .catch(err => console.error("Failed to fetch sections", err));
+  }, []);
+
   const stats = useMemo(
     () => [
-      { label: 'Total Students', value: 1287, icon: '🎓' },
-      { label: 'Active Sections', value: 32, icon: '🏫' },
+      { label: 'Total Students', value: totalStudents, icon: '🎓' },
+      { label: 'Active Sections', value: activeSections, icon: '🏫' },
       { label: 'Pending Requests', value: 14, icon: '🕒' },
       { label: 'Attendance Today', value: 94, icon: '✅' },
     ],
-    [],
+    [totalStudents, activeSections],
   );
 
   const particles = useMemo(
@@ -104,32 +139,42 @@ export default function Dashboard({ user, onLogout }) {
         </section>
 
         <section className="mt-10 grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex items-start justify-between">
+          
+          {/* --- REPLACED RECENT ACTIVITY WITH SECTION OVERVIEW --- */}
+          <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-xl backdrop-blur-sm flex flex-col max-h-[400px]">
+            <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-xl font-semibold text-white">Recent Activity</h2>
-                <p className="text-sm text-white/70">Latest actions across the system.</p>
+                <h2 className="text-xl font-semibold text-white">Section Overview</h2>
+                <p className="text-sm text-white/70">All sections currently registered in the system.</p>
               </div>
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white/80">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" /> Live
+                <span className="h-2 w-2 rounded-full bg-emerald-400" /> {sectionsList.length} Total
               </span>
             </div>
 
-            <div className="mt-6 space-y-3">
-              {[
-                { time: 'Just now', action: 'New student enrolled: Alicia M.' },
-                { time: '8 min ago', action: 'Section added: Math 101 - A' },
-                { time: '22 min ago', action: 'Attendance submitted for Grade 9' },
-                { time: '1 hr ago', action: 'New request: Classroom change' },
-              ].map((item) => (
-                <div key={item.time} className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{item.action}</p>
-                    <p className="mt-1 text-xs text-white/60">{item.time}</p>
+            <div className="overflow-y-auto space-y-3 pr-2 custom-scrollbar flex-1">
+              {sectionsList.length > 0 ? (
+                sectionsList.map((section) => (
+                  <div key={section.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4 transition hover:bg-white/5">
+                    <div>
+                      {/* Note: If your serializer returns a nested subject object, you might use section.subject.subject_code */}
+                      <p className="text-sm font-semibold text-white">
+                        Section Code: <span className="text-emerald-300">{section.section_code}</span>
+                      </p>
+                      <p className="mt-1 text-xs text-white/60">
+                        Subject ID: {typeof section.subject === 'object' ? section.subject.subject_code : section.subject}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-white/80">Capacity: {section.capacity}</p>
+                    </div>
                   </div>
-                  <div className="text-sm font-semibold text-white/80">›</div>
+                ))
+              ) : (
+                <div className="text-center text-white/50 py-10">
+                  <p>No sections have been created yet.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -138,12 +183,10 @@ export default function Dashboard({ user, onLogout }) {
             <p className="mt-1 text-sm text-white/70">Everything you need for student enrollment & sectioning.</p>
 
             <ul className="mt-4 space-y-1 text-white/80 text-sm list-disc pl-5">
-              <li>Add students</li>
-              <li>Add subjects</li>
+              <li>Add students & subjects</li>
               <li>Create sections</li>
               <li>Enroll student in subject</li>
               <li>Section capacity control</li>
-              <li>Enrollment summary</li>
             </ul>
 
             <div className="mt-6 grid gap-3">
@@ -171,7 +214,7 @@ export default function Dashboard({ user, onLogout }) {
         </section>
 
         <footer className="mt-14 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} Student Enrollment & Sectioning System. Designed for a clean, modern dashboard experience.
+          © {new Date().getFullYear()} Student Enrollment & Sectioning System.
         </footer>
       </div>
     </div>
