@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 
 from .models import Enrollment, Section, Student, Subject
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -10,17 +11,13 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, attrs):
         username = attrs.get('username')
         password = attrs.get('password')
-
         if username and password:
             user = authenticate(username=username, password=password)
-
             if not user:
                 raise serializers.ValidationError('Invalid credentials')
-            else:
-                attrs['user'] = user
+            attrs['user'] = user
         else:
             raise serializers.ValidationError('Must include username and password.')
-
         return attrs
 
 
@@ -41,18 +38,11 @@ class SubjectSerializer(serializers.ModelSerializer):
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ["id", "subject", "section_code", "capacity", "created_at"]
+        fields = ["id", "subject", "section_code", "capacity", "schedule", "created_at"]  # ← schedule added
         read_only_fields = ["id", "created_at"]
 
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    """
-    Creates enrollments while enforcing:
-    - no duplicate enrollment per (student, subject)
-    - section capacity limits
-    - automatic section assignment (based on the least-filled available section)
-    """
-
     class Meta:
         model = Enrollment
         fields = ["id", "student", "subject", "section", "created_at"]
@@ -75,11 +65,9 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         subject = validated_data["subject"]
 
         with transaction.atomic():
-            # Re-check duplicates inside the transaction.
             if Enrollment.objects.filter(student=student, subject=subject).exists():
                 raise serializers.ValidationError("Student is already enrolled in this subject.")
 
-            # Lock candidate sections to prevent concurrent over-enrollment.
             section_qs = (
                 Section.objects.select_for_update()
                 .filter(subject=subject)

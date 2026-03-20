@@ -18,6 +18,7 @@ export default function SectionsPage() {
   const [subjectId, setSubjectId] = useState('');
   const [sectionCode, setSectionCode] = useState('');
   const [capacity, setCapacity] = useState(30);
+  const [schedule, setSchedule] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const subjectById = useMemo(() => {
@@ -48,9 +49,7 @@ export default function SectionsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -67,6 +66,7 @@ export default function SectionsPage() {
           subject: Number(subjectId),
           section_code: sectionCode,
           capacity: Number(capacity),
+          schedule: schedule,
         }),
       });
 
@@ -80,6 +80,7 @@ export default function SectionsPage() {
       setSuccess(`✓ Section "${sectionCode}" created for ${subj?.subject_code || 'subject'}.`);
       setSectionCode('');
       setCapacity(30);
+      setSchedule('');
       await fetchAll();
     } catch {
       setError('Network error');
@@ -93,7 +94,6 @@ export default function SectionsPage() {
       <div className="relative z-10 px-6 py-10 lg:px-12">
         <div className="max-w-3xl mx-auto">
 
-          {/* Back button */}
           <button
             onClick={() => navigate('/dashboard')}
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
@@ -105,12 +105,8 @@ export default function SectionsPage() {
           <p className="text-white/70 mt-2">Each section belongs to a subject and has a capacity limit.</p>
 
           <form onSubmit={handleCreate} className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-xl backdrop-blur-sm">
-            {error && (
-              <div className="mb-4 rounded-2xl bg-red-500/10 border border-red-400/50 px-4 py-3 text-sm text-red-100">{error}</div>
-            )}
-            {success && (
-              <div className="mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/50 px-4 py-3 text-sm text-emerald-100">{success}</div>
-            )}
+            {error && <div className="mb-4 rounded-2xl bg-red-500/10 border border-red-400/50 px-4 py-3 text-sm text-red-100">{error}</div>}
+            {success && <div className="mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/50 px-4 py-3 text-sm text-emerald-100">{success}</div>}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
@@ -131,7 +127,7 @@ export default function SectionsPage() {
                 <input
                   value={sectionCode}
                   onChange={(e) => setSectionCode(e.target.value)}
-                  placeholder="e.g. A, B, or BSCS-1A"
+                  placeholder="e.g. A, B, BSCS-1A"
                   className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
                   required
                 />
@@ -139,19 +135,26 @@ export default function SectionsPage() {
               <div>
                 <label className="text-sm font-semibold text-white/70">Capacity</label>
                 <input
-                  type="number"
-                  min={1}
+                  type="number" min={1}
                   value={capacity}
                   onChange={(e) => setCapacity(e.target.value)}
                   className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
                   required
                 />
               </div>
+              <div className="sm:col-span-2">
+                <label className="text-sm font-semibold text-white/70">Schedule <span className="text-white/30 font-normal">(optional)</span></label>
+                <input
+                  value={schedule}
+                  onChange={(e) => setSchedule(e.target.value)}
+                  placeholder="e.g. MWF 8:00-9:30 AM"
+                  className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
             </div>
 
             <button
-              type="submit"
-              disabled={submitting}
+              type="submit" disabled={submitting}
               className="mt-6 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-lg font-semibold text-white shadow-xl shadow-black/40 transition hover:brightness-110 disabled:opacity-50"
             >
               {submitting ? 'Creating…' : '+ Create Section'}
@@ -169,6 +172,7 @@ export default function SectionsPage() {
                     <tr className="text-white/50 text-left text-xs uppercase tracking-widest">
                       <th className="py-2 pr-6">Subject</th>
                       <th className="py-2 pr-6">Section</th>
+                      <th className="py-2 pr-6">Schedule</th>
                       <th className="py-2">Capacity</th>
                     </tr>
                   </thead>
@@ -184,6 +188,7 @@ export default function SectionsPage() {
                           <td className="py-3 pr-6">
                             <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{sec.section_code}</span>
                           </td>
+                          <td className="py-3 pr-6 text-white/50 text-xs">{sec.schedule || '—'}</td>
                           <td className="py-3">
                             <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">{sec.capacity} slots</span>
                           </td>
@@ -191,9 +196,7 @@ export default function SectionsPage() {
                       );
                     })}
                     {sections.length === 0 && (
-                      <tr>
-                        <td colSpan={3} className="py-6 text-center text-white/40">No sections yet.</td>
-                      </tr>
+                      <tr><td colSpan={4} className="py-6 text-center text-white/40">No sections yet.</td></tr>
                     )}
                   </tbody>
                 </table>

@@ -3,10 +3,6 @@ from django.db import models
 
 
 class Student(models.Model):
-    """
-    Represents a student that can enroll in multiple subjects.
-    """
-
     student_number = models.CharField(max_length=50, unique=True)
     full_name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -16,10 +12,6 @@ class Student(models.Model):
 
 
 class Subject(models.Model):
-    """
-    Represents a subject/course with a number of academic units.
-    """
-
     subject_code = models.CharField(max_length=20, unique=True)
     title = models.CharField(max_length=200)
     units = models.PositiveIntegerField(default=1)
@@ -30,13 +22,10 @@ class Subject(models.Model):
 
 
 class Section(models.Model):
-    """
-    Represents a capacity-limited section for a given subject.
-    """
-
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="sections")
     section_code = models.CharField(max_length=10)
     capacity = models.PositiveIntegerField()
+    schedule = models.CharField(max_length=100, blank=True, default='')  # ← NEW
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -53,10 +42,6 @@ class Section(models.Model):
 
 
 class Enrollment(models.Model):
-    """
-    Enrollment of one student in one subject, automatically assigned to a section.
-    """
-
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="enrollments")
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="enrollments")
     section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="enrollments")
@@ -64,7 +49,6 @@ class Enrollment(models.Model):
 
     class Meta:
         constraints = [
-            # Prevent duplicate enrollment of the same student into the same subject.
             models.UniqueConstraint(fields=["student", "subject"], name="unique_student_subject_enrollment")
         ]
 
@@ -82,7 +66,6 @@ class Enrollment(models.Model):
                 raise ValidationError({"section": "Selected section is already full."})
 
     def save(self, *args, **kwargs):
-        # Ensure capacity rules are enforced even when creating enrollments outside the API.
         self.full_clean()
         return super().save(*args, **kwargs)
 
