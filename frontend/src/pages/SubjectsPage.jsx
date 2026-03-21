@@ -25,6 +25,73 @@ function Toast({ msg, type, onClose }) {
   );
 }
 
+function EditModal({ subject, onClose, onSave }) {
+  const [subjectCode, setSubjectCode] = useState(subject.subject_code);
+  const [title, setTitle] = useState(subject.title);
+  const [units, setUnits] = useState(subject.units);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const res = await fetch(`/accounts/api/subjects/${subject.id}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ subject_code: subjectCode, title, units: Number(units) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.detail || data.message || 'Failed to update subject');
+        return;
+      }
+      onSave();
+    } catch {
+      setError('Network error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative z-10 rounded-3xl border border-white/10 bg-[#0f1729] p-8 shadow-2xl w-full max-w-md">
+        <h3 className="text-xl font-bold text-white mb-6">Edit Subject</h3>
+        {error && <div className="mb-4 rounded-2xl bg-red-500/10 border border-red-400/50 px-4 py-3 text-sm text-red-100">{error}</div>}
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-semibold text-white/70">Subject Code</label>
+            <input value={subjectCode} onChange={e => setSubjectCode(e.target.value)}
+              className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-white/70">Title</label>
+            <input value={title} onChange={e => setTitle(e.target.value)}
+              className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-white/70">Units</label>
+            <input type="number" min={1} max={9} value={units} onChange={e => setUnits(e.target.value)}
+              className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400" />
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving}
+            className="flex-1 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50">
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SubjectsPage({ nightMode, onToggleNight }) {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
@@ -32,6 +99,7 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
   const [error, setError] = useState('');
   const [toast, setToast] = useState({ msg: '', type: '' });
   const [search, setSearch] = useState('');
+  const [editingSubject, setEditingSubject] = useState(null);
 
   const [subjectCode, setSubjectCode] = useState('');
   const [title, setTitle] = useState('');
@@ -80,9 +148,7 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
         return;
       }
       setToast({ msg: `✓ Subject "${subjectCode}" added successfully.`, type: 'success' });
-      setSubjectCode('');
-      setTitle('');
-      setUnits(3);
+      setSubjectCode(''); setTitle(''); setUnits(3);
       await fetchSubjects();
     } catch {
       setError('Network error');
@@ -94,13 +160,24 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
   return (
     <div className="min-h-screen bg-animated">
       <Toast msg={toast.msg} type={toast.type} onClose={() => setToast({ msg: '', type: '' })} />
+      {editingSubject && (
+        <EditModal
+          subject={editingSubject}
+          onClose={() => setEditingSubject(null)}
+          onSave={async () => {
+            setEditingSubject(null);
+            setToast({ msg: '✓ Subject updated successfully.', type: 'success' });
+            await fetchSubjects();
+          }}
+        />
+      )}
       <div className="relative z-10 px-6 py-10 lg:px-12">
         <div className="max-w-3xl mx-auto">
           <button onClick={() => navigate('/dashboard')} className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
             ← Dashboard
           </button>
           <h2 className="text-3xl font-bold text-white">Add Subjects</h2>
-          <p className="text-white/70 mt-2">Create subjects with academic units.</p>
+          <p className="text-white/70 mt-2">Create and manage subjects.</p>
 
           <form onSubmit={handleCreate} className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-xl backdrop-blur-sm">
             {error && <div className="mb-4 rounded-2xl bg-red-500/10 border border-red-400/50 px-4 py-3 text-sm text-red-100">{error}</div>}
@@ -122,7 +199,7 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
               </div>
             </div>
             <button type="submit" disabled={submitting}
-              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-lg font-semibold text-white shadow-xl shadow-black/40 transition hover:brightness-110 disabled:opacity-50">
+              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-lg font-semibold text-white shadow-xl transition hover:brightness-110 disabled:opacity-50">
               {submitting ? 'Adding…' : '+ Add Subject'}
             </button>
           </form>
@@ -142,28 +219,35 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
                   className="w-full rounded-2xl bg-white/10 pl-9 pr-4 py-2 text-sm text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400" />
               </div>
             </div>
-            {loading ? (
-              <p className="text-white/50 text-sm">Loading…</p>
-            ) : (
+            {loading ? <p className="text-white/50 text-sm">Loading…</p> : (
               <div className="overflow-auto">
                 <table className="min-w-full text-sm text-white/80">
                   <thead>
                     <tr className="text-white/50 text-left text-xs uppercase tracking-widest">
                       <th className="py-2 pr-6">Code</th>
                       <th className="py-2 pr-6">Title</th>
-                      <th className="py-2">Units</th>
+                      <th className="py-2 pr-6">Units</th>
+                      <th className="py-2">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((s) => (
-                      <tr key={s.id} className="border-t border-white/10 hover:bg-white/5">
+                      <tr key={s.id} className="border-t border-white/10 hover:bg-white/5 group">
                         <td className="py-3 pr-6 font-semibold text-white">{s.subject_code}</td>
                         <td className="py-3 pr-6">{s.title}</td>
-                        <td className="py-3"><span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{s.units} units</span></td>
+                        <td className="py-3 pr-6"><span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">{s.units} units</span></td>
+                        <td className="py-3">
+                          <button
+                            onClick={() => setEditingSubject(s)}
+                            className="text-xs bg-blue-500/10 border border-blue-400/30 text-blue-300 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-blue-500/20"
+                          >
+                            ✏ Edit
+                          </button>
+                        </td>
                       </tr>
                     ))}
                     {filtered.length === 0 && (
-                      <tr><td colSpan={3} className="py-6 text-center text-white/40">
+                      <tr><td colSpan={4} className="py-6 text-center text-white/40">
                         {search ? `No subjects matching "${search}".` : 'No subjects yet.'}
                       </td></tr>
                     )}
@@ -174,13 +258,7 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
           </div>
         </div>
       </div>
-
-      {/* Night mode toggle */}
-      <button
-        onClick={onToggleNight}
-        className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20"
-        title="Toggle night mode"
-      >
+      <button onClick={onToggleNight} className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20" title="Toggle night mode">
         {nightMode ? '☀️' : '🌙'}
       </button>
     </div>

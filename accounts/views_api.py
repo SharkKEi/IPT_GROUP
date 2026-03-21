@@ -45,6 +45,14 @@ class StudentListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = StudentSerializer
 
 
+@method_decorator(csrf_exempt, name="dispatch")
+class StudentRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+
 # ── Subjects ──────────────────────────────────────────────────────────────────
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -55,6 +63,14 @@ class SubjectListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = SubjectSerializer
 
 
+@method_decorator(csrf_exempt, name="dispatch")
+class SubjectRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
+
 # ── Sections ──────────────────────────────────────────────────────────────────
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -62,6 +78,14 @@ class SectionListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     queryset = Section.objects.all().select_related("subject").order_by("subject__subject_code", "section_code")
+    serializer_class = SectionSerializer
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SectionRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    queryset = Section.objects.all()
     serializer_class = SectionSerializer
 
 
@@ -77,7 +101,6 @@ class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class EnrollmentDeleteAPIView(APIView):
-    """DELETE /api/enrollments/{id}/ — drop/unenroll a student from a subject."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -85,10 +108,7 @@ class EnrollmentDeleteAPIView(APIView):
         try:
             enrollment = Enrollment.objects.get(pk=pk)
         except Enrollment.DoesNotExist:
-            return Response(
-                {"detail": "Enrollment not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "Enrollment not found."}, status=status.HTTP_404_NOT_FOUND)
         student_name = enrollment.student.full_name
         subject_code = enrollment.subject.subject_code
         enrollment.delete()
