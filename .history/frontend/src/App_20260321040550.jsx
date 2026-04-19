@@ -3,7 +3,6 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import Dashboard from './components/Dashboard.jsx'
 import EnrollmentSummaryPage from './pages/EnrollmentSummaryPage.jsx'
 import EnrollmentsPage from './pages/EnrollmentsPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
 import SectionsPage from './pages/SectionsPage.jsx'
 import StudentsPage from './pages/StudentsPage.jsx'
 import SubjectsPage from './pages/SubjectsPage.jsx'
@@ -63,13 +62,7 @@ function App() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/accounts/api/logout/', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch { /* ignore network errors on logout */ }
+  const handleLogout = () => {
     setIsLoggedIn(false);
     setUser(null);
     setFormData({ username: '', password: '' });
@@ -82,7 +75,7 @@ function App() {
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39]">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[url('C:\Coding\IPT_GROUP\frontend\src\assets\login_background.png')] bg-cover bg-center opacity-20" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center opacity-20" />
       </div>
 
       {/* Night mode toggle on login page */}
@@ -177,7 +170,6 @@ function App() {
     <Routes>
       <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
       <Route path="/dashboard" element={isLoggedIn ? withNightToggle(Dashboard) : <Navigate to="/" replace />} />
-      <Route path="/profile" element={isLoggedIn ? withNightToggle(ProfilePage) : <Navigate to="/" replace />} />
       <Route path="/students" element={isLoggedIn ? <StudentsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
       <Route path="/subjects" element={isLoggedIn ? <SubjectsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
       <Route path="/sections" element={isLoggedIn ? <SectionsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />

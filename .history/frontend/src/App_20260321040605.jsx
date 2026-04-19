@@ -3,7 +3,6 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import Dashboard from './components/Dashboard.jsx'
 import EnrollmentSummaryPage from './pages/EnrollmentSummaryPage.jsx'
 import EnrollmentsPage from './pages/EnrollmentsPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
 import SectionsPage from './pages/SectionsPage.jsx'
 import StudentsPage from './pages/StudentsPage.jsx'
 import SubjectsPage from './pages/SubjectsPage.jsx'
@@ -63,13 +62,7 @@ function App() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/accounts/api/logout/', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch { /* ignore network errors on logout */ }
+  const handleLogout = () => {
     setIsLoggedIn(false);
     setUser(null);
     setFormData({ username: '', password: '' });
@@ -177,7 +170,6 @@ function App() {
     <Routes>
       <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
       <Route path="/dashboard" element={isLoggedIn ? withNightToggle(Dashboard) : <Navigate to="/" replace />} />
-      <Route path="/profile" element={isLoggedIn ? withNightToggle(ProfilePage) : <Navigate to="/" replace />} />
       <Route path="/students" element={isLoggedIn ? <StudentsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
       <Route path="/subjects" element={isLoggedIn ? <SubjectsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
       <Route path="/sections" element={isLoggedIn ? <SectionsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />

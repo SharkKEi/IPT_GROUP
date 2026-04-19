@@ -1,8 +1,8 @@
-from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth import login
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count, Sum
@@ -35,31 +35,6 @@ class LoginAPIView(APIView):
         return Response({'message': 'Login successful', 'user': user.username}, status=status.HTTP_200_OK)
 
 
-class LogoutAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        auth_logout(request)
-        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-
-
-class MeAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        return Response({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_staff': user.is_staff,
-            'date_joined': user.date_joined,
-            'last_login': user.last_login,
-        })
-
-
 # ── Students ──────────────────────────────────────────────────────────────────
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -67,14 +42,6 @@ class StudentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     queryset = Student.objects.all().order_by("student_number")
-    serializer_class = StudentSerializer
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class StudentRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
-    queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 
@@ -88,14 +55,6 @@ class SubjectListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = SubjectSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class SubjectRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
-    queryset = Subject.objects.all()
-    serializer_class = SubjectSerializer
-
-
 # ── Sections ──────────────────────────────────────────────────────────────────
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -103,14 +62,6 @@ class SectionListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     queryset = Section.objects.all().select_related("subject").order_by("subject__subject_code", "section_code")
-    serializer_class = SectionSerializer
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class SectionRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
-    queryset = Section.objects.all()
     serializer_class = SectionSerializer
 
 
@@ -126,6 +77,7 @@ class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class EnrollmentDeleteAPIView(APIView):
+    """DELETE /api/enrollments/{id}/ — drop/unenroll a student from a subject."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -133,7 +85,10 @@ class EnrollmentDeleteAPIView(APIView):
         try:
             enrollment = Enrollment.objects.get(pk=pk)
         except Enrollment.DoesNotExist:
-            return Response({"detail": "Enrollment not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Enrollment not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
         student_name = enrollment.student.full_name
         subject_code = enrollment.subject.subject_code
         enrollment.delete()

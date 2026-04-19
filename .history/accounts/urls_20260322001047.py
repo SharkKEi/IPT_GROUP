@@ -7,8 +7,6 @@ from .views_api import (
     EnrollmentDeleteAPIView,
     EnrollmentSummaryAPIView,
     LoginAPIView,
-    LogoutAPIView,
-    MeAPIView,
     SectionListCreateAPIView,
     SectionRetrieveUpdateAPIView,
     StudentListCreateAPIView,
@@ -22,8 +20,6 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='login', permanent=False), name='accounts_root'),
     path('login/', SchoolLoginView.as_view(), name='login'),
     path('api/login/', LoginAPIView.as_view(), name='api_login'),
-    path('api/logout/', LogoutAPIView.as_view(), name='api_logout'),
-    path('api/me/', MeAPIView.as_view(), name='api_me'),
 
     # ── Students ───────────────────────────────────────────────────────────────
     path('api/students/', StudentListCreateAPIView.as_view(), name='api_students'),

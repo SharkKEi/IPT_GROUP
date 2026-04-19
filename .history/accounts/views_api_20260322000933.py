@@ -1,8 +1,8 @@
-from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth import login
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count, Sum
@@ -33,31 +33,6 @@ class LoginAPIView(APIView):
         if not bool(remember_me):
             request.session.set_expiry(0)
         return Response({'message': 'Login successful', 'user': user.username}, status=status.HTTP_200_OK)
-
-
-class LogoutAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        auth_logout(request)
-        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
-
-
-class MeAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        return Response({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_staff': user.is_staff,
-            'date_joined': user.date_joined,
-            'last_login': user.last_login,
-        })
 
 
 # ── Students ──────────────────────────────────────────────────────────────────
