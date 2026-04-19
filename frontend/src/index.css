@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+@tailwind utilities;
+
+/* Force full coverage */
+html {
+  height: 100% !important;
+  background-color: #0f172a !important;
+  background-image: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #0ea5e9 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+body {
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: inherit !important;
+  background-image: inherit !important;
+  background-attachment: fixed !important;
+}
+
+#root {
+  height: 100vh !important;
+  background-color: inherit !important;
+  background-image: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.night #root, .night body, .night html {
+  background-image: linear-gradient(135deg, #020817 0%, #0a1628 50%, #0f2044 100%) !important;
+}
+
 @layer utilities {
 
   /* ── Day mode (current teal) ── */
@@ -79,13 +112,4 @@
   50% {
     transform: translateY(-22px) translateX(12px);
   }
-}
-
-/* Smooth theme transition — only color properties, not layout */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, color;
-  transition-duration: 300ms;
-  transition-timing-function: ease;
 }

@@ -9,7 +9,7 @@ import StudentsPage from './pages/StudentsPage.jsx'
 import SubjectsPage from './pages/SubjectsPage.jsx'
 
 function App() {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData ] = useState({ username: '', password: '' });
   const [remember, setRemember] = useState(true);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -20,7 +20,6 @@ function App() {
   });
   const navigate = useNavigate();
 
-  // Apply night class to <html> element
   useEffect(() => {
     const root = document.documentElement;
     if (nightMode) {
@@ -42,7 +41,7 @@ function App() {
     try {
       const response = await fetch('/accounts/api/login/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         credentials: 'include',
         body: JSON.stringify({ ...formData, remember }),
       });
@@ -82,10 +81,9 @@ function App() {
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39]">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[url('C:\Coding\IPT_GROUP\frontend\src\assets\login_background.png')] bg-cover bg-center opacity-20" />
+        <div className="absolute inset-0 bg-[url('https://i.pinimg.com/originals/50/65/1e/50651e95ae192df7dddf0ddc8e92a284.jpg')] bg-cover bg-center opacity-20" />
       </div>
 
-      {/* Night mode toggle on login page */}
       <button
         onClick={() => setNightMode(n => !n)}
         className="absolute top-6 right-6 z-10 rounded-full border border-white/20 bg-white/10 p-2.5 text-white backdrop-blur transition hover:bg-white/20"
@@ -113,7 +111,7 @@ function App() {
                 <div className="relative">
                   <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/50">
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99.722 7.121 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99 .722 7.121 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </span>
                   <input type="text" placeholder="Username" value={formData.username}
@@ -129,7 +127,7 @@ function App() {
                   <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/50">
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c1.657 0 3-1.343 3-3V5a3 3 0 10-6 0v3c0 1.657 1.343 3 3 3z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 11h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 11h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v7a2 2 0 012-2z" />
                     </svg>
                   </span>
                   <input type="password" placeholder="Password" value={formData.password}
@@ -154,7 +152,7 @@ function App() {
               </button>
 
               <p className="text-center text-sm text-white/60">
-                Don&apos;t have an account? <span className="font-semibold text-white/80">Contact your administrator</span>
+                Don't have an account? <span className="font-semibold text-white/80">Contact your administrator</span>
               </p>
             </form>
           </div>
