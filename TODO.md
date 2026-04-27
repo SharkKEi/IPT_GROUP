@@ -1,0 +1,1 @@
+- [x] Edit requirements.txt to Django==5.1.15 (compatible with Python 3.11)\n- [x] Install requirements in venv\n- [x] Run python manage.py migrate\n- [ ] Test with python manage.py runserver (optional)

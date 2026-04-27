@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force full coverage */
+html {
+  height: 100% !important;
+  background-color: #0f172a !important;
+  background-image: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #0ea5e9 100%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+body {
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: inherit !important;
+  background-image: inherit !important;
+  background-attachment: fixed !important;
+}
+
+#root {
+  height: 100vh !important;
+  background-color: inherit !important;
+  background-image: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.night #root, .night body, .night html {
+  background-image: linear-gradient(135deg, #020817 0%, #0a1628 50%, #0f2044 100%) !important;
+}
+
+@layer utilities {
+
+  /* ── Day mode (current teal) ── */
+  .bg-animated {
+    background: linear-gradient(135deg, #0f172a, #1e40af, #0ea5e9, #14b8a6);
+    background-size: 600% 600%;
+    animation: gradient-xy 16s ease infinite;
+  }
+
+  /* ── Night mode (midnight navy) ── */
+  .night .bg-animated {
+    background: linear-gradient(135deg, #020817, #0a1628, #0f2044, #0a1628);
+    background-size: 400% 400%;
+    animation: gradient-xy 20s ease infinite;
+  }
+
+  .night .bg-white\/10 {
+    background-color: rgba(15, 25, 50, 0.7) !important;
+  }
+
+  .night .bg-white\/5 {
+    background-color: rgba(15, 25, 50, 0.4) !important;
+  }
+
+  .night .bg-black\/10 {
+    background-color: rgba(5, 10, 25, 0.6) !important;
+  }
+
+  .night .bg-black\/20 {
+    background-color: rgba(5, 10, 25, 0.8) !important;
+  }
+
+  .night .bg-black\/30 {
+    background-color: rgba(5, 10, 25, 0.9) !important;
+  }
+
+  .night .bg-white\/15 {
+    background-color: rgba(60, 100, 200, 0.12) !important;
+  }
+
+  .night .border-white\/10 {
+    border-color: rgba(99, 140, 255, 0.12) !important;
+  }
+
+  .night .border-white\/20 {
+    border-color: rgba(99, 140, 255, 0.2) !important;
+  }
+
+  .animate-float {
+    animation: float 10s ease-in-out infinite;
+  }
+}
+
+@keyframes gradient-xy {
+  0% {
+    background-position: 0% 55%;
+  }
+
+  50% {
+    background-position: 100% 45%;
+  }
+
+  100% {
+    background-position: 0% 55%;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  50% {
+    transform: translateY(-22px) translateX(12px);
+  }
+}

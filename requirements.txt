@@ -1,0 +1,9 @@
+asgiref==3.11.1
+Django==5.2.13
+django-cors-headers==4.9.0
+djangorestframework==3.17.1
+sqlparse==0.5.5
+tzdata==2025.3
+Pillow==11.2.1
+cloudinary==1.36.0
+django-cloudinary-storage==0.3.0
