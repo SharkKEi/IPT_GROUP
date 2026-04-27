@@ -47,11 +47,19 @@ export default function ProfilePage({ user, onLogout, nightMode, onToggleNight }
                     {profile && (
                         <div className="rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-sm">
 
-                            {/* Avatar + name */}
+
                             <div className="flex flex-col items-center text-center mb-8">
-                                <div className="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-400 to-emerald-400 flex items-center justify-center text-4xl font-bold text-white shadow-xl mb-4">
-                                    {initial}
-                                </div>
+                                {profile.profile_picture ? (
+                                    <img
+                                        src={profile.profile_picture}
+                                        alt="Profile"
+                                        className="h-24 w-24 rounded-full object-cover shadow-xl mb-4 border-2 border-white/20"
+                                    />
+                                ) : (
+                                    <div className="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-400 to-emerald-400 flex items-center justify-center text-4xl font-bold text-white shadow-xl mb-4">
+                                        {initial}
+                                    </div>
+                                )}
                                 <h1 className="text-2xl font-bold text-white">
                                     {profile.first_name || profile.last_name
                                         ? `${profile.first_name} ${profile.last_name}`.trim()

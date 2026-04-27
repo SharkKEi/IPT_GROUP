@@ -151,13 +151,17 @@ export default function Dashboard({ user, onLogout, nightMode, onToggleNight }) 
             >
               Log out
             </button>
-            {/* Avatar — click to go to profile page */}
+
             <button
               onClick={() => navigate('/profile')}
-              className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-400 to-emerald-400 shadow-xl flex items-center justify-center text-xl font-bold text-white transition hover:brightness-110"
+              className="h-12 w-12 rounded-full shadow-xl flex items-center justify-center text-xl font-bold text-white transition hover:brightness-110 overflow-hidden"
               title="View profile"
             >
-              {user?.username?.[0]?.toUpperCase() || 'U'}
+              {user?.profile_picture ? (
+                <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <span>{user?.username?.[0]?.toUpperCase() || 'U'}</span>
+              )}
             </button>
           </div>
         </header>

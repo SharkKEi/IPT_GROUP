@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Account</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #0f0c29; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background: #1a1638; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); padding: 40px 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { color: rgba(255,255,255,0.8); margin: 10px 0 0; font-size: 15px; }
+        .body { padding: 35px 30px; color: #d1d5db; font-size: 15px; line-height: 1.7; }
+        .body strong { color: #ffffff; }
+        .btn-wrap { text-align: center; margin: 30px 0; }
+        .btn { display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 8px 24px rgba(79,70,229,0.35); transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
+        .footer { padding: 25px 30px; background: #13102b; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid rgba(255,255,255,0.05); }
+        .fallback { margin-top: 20px; padding: 14px; background: #0f0c29; border-radius: 8px; font-size: 12px; color: #9ca3af; word-break: break-all; border: 1px solid rgba(255,255,255,0.06); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 School Portal</h1>
+            <p>Welcome aboard, {{ username }}!</p>
+        </div>
+        <div class="body">
+            <p>Thank you for signing up. To complete your registration and unlock your account, please confirm your email address by clicking the button below.</p>
+            <div class="btn-wrap">
+                <a href="{{ activation_url }}" class="btn">Activate My Account</a>
+            </div>
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <div class="fallback">{{ activation_url }}</div>
+            <p style="margin-top:24px; font-size:13px; color:#6b7280;">If you didn't create an account with us, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} School Portal. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

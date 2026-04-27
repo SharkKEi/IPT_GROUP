@@ -7,6 +7,8 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import SectionsPage from './pages/SectionsPage.jsx'
 import StudentsPage from './pages/StudentsPage.jsx'
 import SubjectsPage from './pages/SubjectsPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
+import ActivatePage from './pages/ActivatePage.jsx'
 
 function App() {
   const [formData, setFormData ] = useState({ username: '', password: '' });
@@ -48,7 +50,7 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         setIsLoggedIn(true);
-        setUser({ username: data.user || formData.username });
+        setUser({ username: data.user || formData.username, profile_picture: data.profile_picture || null });
         setError('');
         navigate('/dashboard');
       } else {
@@ -152,7 +154,8 @@ function App() {
               </button>
 
               <p className="text-center text-sm text-white/60">
-                Don't have an account? <span className="font-semibold text-white/80">Contact your administrator</span>
+                Don't have an account?{' '}
+                <button type="button" onClick={() => navigate('/register')} className="font-semibold text-white/80 hover:text-white">Register here</button>
               </p>
             </form>
           </div>
@@ -174,6 +177,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
+      <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
+      <Route path="/activate" element={<ActivatePage />} />
       <Route path="/dashboard" element={isLoggedIn ? withNightToggle(Dashboard) : <Navigate to="/" replace />} />
       <Route path="/profile" element={isLoggedIn ? withNightToggle(ProfilePage) : <Navigate to="/" replace />} />
       <Route path="/students" element={isLoggedIn ? <StudentsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />

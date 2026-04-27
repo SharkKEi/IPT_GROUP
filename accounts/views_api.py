@@ -6,14 +6,19 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count, Sum
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
-from .models import Enrollment, Section, Student, Subject
+from .models import Enrollment, Section, Student, Subject, UserProfile
 from .serializers import (
     EnrollmentSerializer,
     SectionSerializer,
     StudentSerializer,
     SubjectSerializer,
     LoginSerializer,
+    RegisterSerializer,
 )
 
 
@@ -48,6 +53,9 @@ class MeAPIView(APIView):
 
     def get(self, request):
         user = request.user
+        profile_picture = None
+        if hasattr(user, 'profile') and user.profile.profile_picture:
+            profile_picture = request.build_absolute_uri(user.profile.profile_picture.url)
         return Response({
             'id': user.id,
             'username': user.username,
@@ -57,7 +65,68 @@ class MeAPIView(APIView):
             'is_staff': user.is_staff,
             'date_joined': user.date_joined,
             'last_login': user.last_login,
+            'profile_picture': profile_picture,
+            'is_email_verified': user.profile.is_email_verified if hasattr(user, 'profile') else True,
         })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        profile = user.profile
+        token = profile.activation_token
+
+        activation_url = f"{request.scheme}://{request.get_host()}/activate?token={token}"
+
+        html_message = render_to_string('emails/activation.html', {
+            'username': user.username,
+            'activation_url': activation_url,
+        })
+        plain_message = strip_tags(html_message)
+
+        send_mail(
+            subject='Activate Your School Portal Account',
+            message=plain_message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+
+        return Response({
+            'message': 'Registration successful. Please check your email to activate your account.',
+            'username': user.username,
+        }, status=status.HTTP_201_CREATED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ActivateAccountAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'detail': 'Activation token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            profile = UserProfile.objects.get(activation_token=token)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Invalid or expired activation token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = profile.user
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        profile.is_email_verified = True
+        profile.activation_token = None
+        profile.save(update_fields=['is_email_verified', 'activation_token'])
+
+        return Response({'message': 'Account activated successfully. You can now log in.'}, status=status.HTTP_200_OK)
 
 
 # ── Students ──────────────────────────────────────────────────────────────────
@@ -189,3 +258,4 @@ class EnrollmentSummaryAPIView(APIView):
                 for sub in per_subject
             ],
         }, status=status.HTTP_200_OK)
+

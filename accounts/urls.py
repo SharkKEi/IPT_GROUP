@@ -15,6 +15,8 @@ from .views_api import (
     StudentRetrieveUpdateAPIView,
     SubjectListCreateAPIView,
     SubjectRetrieveUpdateAPIView,
+    RegisterAPIView,
+    ActivateAccountAPIView,
 )
 
 urlpatterns = [
@@ -24,6 +26,8 @@ urlpatterns = [
     path('api/login/', LoginAPIView.as_view(), name='api_login'),
     path('api/logout/', LogoutAPIView.as_view(), name='api_logout'),
     path('api/me/', MeAPIView.as_view(), name='api_me'),
+    path('api/register/', RegisterAPIView.as_view(), name='api_register'),
+    path('api/activate/', ActivateAccountAPIView.as_view(), name='api_activate'),
 
     # ── Students ───────────────────────────────────────────────────────────────
     path('api/students/', StudentListCreateAPIView.as_view(), name='api_students'),

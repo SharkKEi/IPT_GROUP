@@ -1,5 +1,22 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import User
+import secrets
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    is_email_verified = models.BooleanField(default=False)
+    activation_token = models.CharField(max_length=64, blank=True, null=True)
+
+    def generate_activation_token(self):
+        self.activation_token = secrets.token_urlsafe(32)
+        self.save(update_fields=['activation_token'])
+        return self.activation_token
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
 
 
 class Student(models.Model):
@@ -71,3 +88,4 @@ class Enrollment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.student.full_name} -> {self.subject.subject_code} ({self.section.section_code})"
+
