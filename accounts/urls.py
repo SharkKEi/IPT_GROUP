@@ -17,6 +17,7 @@ from .views_api import (
     SubjectRetrieveUpdateAPIView,
     RegisterAPIView,
     ActivateAccountAPIView,
+    DevActivateAPIView,
 )
 
 urlpatterns = [
@@ -28,6 +29,9 @@ urlpatterns = [
     path('api/me/', MeAPIView.as_view(), name='api_me'),
     path('api/register/', RegisterAPIView.as_view(), name='api_register'),
     path('api/activate/', ActivateAccountAPIView.as_view(), name='api_activate'),
+
+    # ── Dev only: instant activation (DEBUG=True only) ────────────────────────
+    path('api/dev/activate/<str:username>/', DevActivateAPIView.as_view(), name='api_dev_activate'),
 
     # ── Students ───────────────────────────────────────────────────────────────
     path('api/students/', StudentListCreateAPIView.as_view(), name='api_students'),

@@ -69,6 +69,47 @@ class MeAPIView(APIView):
             'is_email_verified': user.profile.is_email_verified if hasattr(user, 'profile') else True,
         })
 
+    def patch(self, request):
+        user = request.user
+
+        first_name = request.data.get('first_name', user.first_name)
+        last_name = request.data.get('last_name', user.last_name)
+        email = request.data.get('email', user.email)
+
+        from django.contrib.auth.models import User as AuthUser
+        if email != user.email and AuthUser.objects.filter(email=email).exclude(pk=user.pk).exists():
+            return Response(
+                {'detail': 'Email already in use by another account.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save(update_fields=['first_name', 'last_name', 'email'])
+
+        if 'profile_picture' in request.FILES:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.profile_picture = request.FILES['profile_picture']
+            profile.save(update_fields=['profile_picture'])
+
+        profile_picture_url = None
+        if hasattr(user, 'profile') and user.profile.profile_picture:
+            profile_picture_url = request.build_absolute_uri(user.profile.profile_picture.url)
+
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_staff': user.is_staff,
+            'date_joined': user.date_joined,
+            'last_login': user.last_login,
+            'profile_picture': profile_picture_url,
+            'is_email_verified': user.profile.is_email_verified if hasattr(user, 'profile') else True,
+        })
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterAPIView(APIView):
@@ -82,7 +123,8 @@ class RegisterAPIView(APIView):
         profile = user.profile
         token = profile.activation_token
 
-        activation_url = f"{request.scheme}://{request.get_host()}/activate?token={token}"
+        # Always points to the React frontend
+        activation_url = f"http://localhost:5173/activate?token={token}"
 
         html_message = render_to_string('emails/activation.html', {
             'username': user.username,
@@ -127,6 +169,42 @@ class ActivateAccountAPIView(APIView):
         profile.save(update_fields=['is_email_verified', 'activation_token'])
 
         return Response({'message': 'Account activated successfully. You can now log in.'}, status=status.HTTP_200_OK)
+
+
+# ── Dev-only: instant activation (DEBUG only) ─────────────────────────────────
+
+class DevActivateAPIView(APIView):
+    """
+    Development shortcut — instantly activates an account by username.
+    Only works when DEBUG=True. Remove or disable in production.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, username):
+        if not settings.DEBUG:
+            return Response({'detail': 'Not available in production.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            from django.contrib.auth.models import User as AuthUser
+            user = AuthUser.objects.get(username=username)
+        except AuthUser.DoesNotExist:
+            return Response({'detail': f'User "{username}" not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.is_email_verified = True
+        profile.activation_token = None
+        profile.save(update_fields=['is_email_verified', 'activation_token'])
+
+        return Response({
+            'message': f'Account "{username}" activated successfully.',
+            'username': username,
+            'is_active': True,
+            'is_email_verified': True,
+        }, status=status.HTTP_200_OK)
 
 
 # ── Students ──────────────────────────────────────────────────────────────────
@@ -258,4 +336,3 @@ class EnrollmentSummaryAPIView(APIView):
                 for sub in per_subject
             ],
         }, status=status.HTTP_200_OK)
-

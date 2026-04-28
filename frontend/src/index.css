@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@tailwind utilities;
-
 /* Force full coverage */
 html {
   height: 100% !important;
@@ -112,4 +110,11 @@ body {
   50% {
     transform: translateY(-22px) translateX(12px);
   }
+}
+
+/* Hide browser's built-in password reveal button */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input::-webkit-credentials-auto-fill-button {
+  display: none !important;
 }
