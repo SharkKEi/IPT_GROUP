@@ -123,26 +123,32 @@ class RegisterAPIView(APIView):
         profile = user.profile
         token = profile.activation_token
 
-        # Always points to the React frontend
-        activation_url = f"http://localhost:5173/activate?token={token}"
+        # In production, send activation email. In development (DEBUG=True), skip email sending.
+        if not settings.DEBUG:
+            # Always points to the React frontend
+            activation_url = f"http://localhost:5173/activate?token={token}"
 
-        html_message = render_to_string('emails/activation.html', {
-            'username': user.username,
-            'activation_url': activation_url,
-        })
-        plain_message = strip_tags(html_message)
+            html_message = render_to_string('emails/activation.html', {
+                'username': user.username,
+                'activation_url': activation_url,
+            })
+            plain_message = strip_tags(html_message)
 
-        send_mail(
-            subject='Activate Your School Portal Account',
-            message=plain_message,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+            send_mail(
+                subject='Activate Your School Portal Account',
+                message=plain_message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+
+            message = 'Registration successful. Please check your email to activate your account.'
+        else:
+            message = 'Registration successful. You can now log in.'
 
         return Response({
-            'message': 'Registration successful. Please check your email to activate your account.',
+            'message': message,
             'username': user.username,
         }, status=status.HTTP_201_CREATED)
 

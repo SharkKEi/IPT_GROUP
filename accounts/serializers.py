@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.validators import validate_email
+from django.conf import settings
 
 from .models import Enrollment, Section, Student, Subject, UserProfile
 
@@ -17,7 +18,8 @@ class LoginSerializer(serializers.Serializer):
             user = authenticate(username=username, password=password)
             if not user:
                 raise serializers.ValidationError('Invalid credentials')
-            if hasattr(user, 'profile') and not user.profile.is_email_verified:
+            # In production, require email verification. In development (DEBUG=True), skip.
+            if not settings.DEBUG and hasattr(user, 'profile') and not user.profile.is_email_verified:
                 raise serializers.ValidationError('Account is not activated. Please check your email.')
             attrs['user'] = user
         else:
@@ -52,13 +54,18 @@ class RegisterSerializer(serializers.Serializer):
         picture = validated_data.pop('profile_picture', None)
         validated_data.pop('confirm_password')
         password = validated_data.pop('password')
-        user = User.objects.create_user(**validated_data, is_active=False)
+        # In DEBUG mode (development), auto-activate accounts. In production, require email activation.
+        is_active = settings.DEBUG
+        user = User.objects.create_user(**validated_data, is_active=is_active)
         user.set_password(password)
         user.save()
         profile = UserProfile.objects.create(user=user)
         if picture:
             profile.profile_picture = picture
             profile.save(update_fields=['profile_picture'])
+        # Auto-verify email in DEBUG mode, require activation in production
+        if settings.DEBUG:
+            profile.is_email_verified = True
         profile.generate_activation_token()
         return user
 
