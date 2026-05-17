@@ -1,18 +1,25 @@
 from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth.models import User as AuthUser
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework import status, generics
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Count, Sum
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 
+from .chatbot import get_chatbot_reply
+from .jwt_serializers import user_payload
 from .models import Enrollment, Section, Student, Subject, UserProfile
+from .permissions import CanManageSchoolData, IsAdminRole
 from .serializers import (
+    ChatMessageSerializer,
     EnrollmentSerializer,
     SectionSerializer,
     StudentSerializer,
@@ -20,6 +27,8 @@ from .serializers import (
     LoginSerializer,
     RegisterSerializer,
 )
+
+API_AUTH = [SessionAuthentication, JWTAuthentication]
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
@@ -37,7 +46,10 @@ class LoginAPIView(APIView):
         remember_me = request.data.get('remember')
         if not bool(remember_me):
             request.session.set_expiry(0)
-        return Response({'message': 'Login successful', 'user': user.username}, status=status.HTTP_200_OK)
+        return Response({
+            'message': 'Login successful',
+            'user': user_payload(user, request),
+        }, status=status.HTTP_200_OK)
 
 
 class LogoutAPIView(APIView):
@@ -48,26 +60,12 @@ class LogoutAPIView(APIView):
         return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        profile_picture = None
-        if hasattr(user, 'profile') and user.profile.profile_picture:
-            profile_picture = request.build_absolute_uri(user.profile.profile_picture.url)
-        return Response({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_staff': user.is_staff,
-            'date_joined': user.date_joined,
-            'last_login': user.last_login,
-            'profile_picture': profile_picture,
-            'is_email_verified': user.profile.is_email_verified if hasattr(user, 'profile') else True,
-        })
+        return Response(user_payload(request.user, request))
 
     def patch(self, request):
         user = request.user
@@ -76,7 +74,6 @@ class MeAPIView(APIView):
         last_name = request.data.get('last_name', user.last_name)
         email = request.data.get('email', user.email)
 
-        from django.contrib.auth.models import User as AuthUser
         if email != user.email and AuthUser.objects.filter(email=email).exclude(pk=user.pk).exists():
             return Response(
                 {'detail': 'Email already in use by another account.'},
@@ -97,18 +94,7 @@ class MeAPIView(APIView):
         if hasattr(user, 'profile') and user.profile.profile_picture:
             profile_picture_url = request.build_absolute_uri(user.profile.profile_picture.url)
 
-        return Response({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_staff': user.is_staff,
-            'date_joined': user.date_joined,
-            'last_login': user.last_login,
-            'profile_picture': profile_picture_url,
-            'is_email_verified': user.profile.is_email_verified if hasattr(user, 'profile') else True,
-        })
+        return Response(user_payload(user, request))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -123,33 +109,30 @@ class RegisterAPIView(APIView):
         profile = user.profile
         token = profile.activation_token
 
-        # In production, send activation email. In development (DEBUG=True), skip email sending.
-        if not settings.DEBUG:
-            # Always points to the React frontend
-            activation_url = f"http://localhost:5173/activate?token={token}"
+        activation_url = f"{settings.FRONTEND_URL}/activate?token={token}"
+        html_message = render_to_string('emails/activation.html', {
+            'username': user.username,
+            'activation_url': activation_url,
+        })
+        plain_message = strip_tags(html_message)
+        send_mail(
+            subject='Activate Your School Portal Account',
+            message=plain_message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
 
-            html_message = render_to_string('emails/activation.html', {
-                'username': user.username,
-                'activation_url': activation_url,
-            })
-            plain_message = strip_tags(html_message)
-
-            send_mail(
-                subject='Activate Your School Portal Account',
-                message=plain_message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
-                recipient_list=[user.email],
-                html_message=html_message,
-                fail_silently=False,
-            )
-
+        if getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False):
             message = 'Registration successful. Please check your email to activate your account.'
         else:
-            message = 'Registration successful. You can now log in.'
+            message = 'Registration successful. You can log in now. An activation email was also sent for your records.'
 
         return Response({
             'message': message,
             'username': user.username,
+            'requires_activation': getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False),
         }, status=status.HTTP_201_CREATED)
 
 
@@ -213,74 +196,127 @@ class DevActivateAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# ── Students ──────────────────────────────────────────────────────────────────
+# ── CSRF cookie (SPA) ─────────────────────────────────────────────────────────
 
-@method_decorator(csrf_exempt, name="dispatch")
-class StudentListCreateAPIView(generics.ListCreateAPIView):
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CsrfCookieAPIView(APIView):
+    """Sets csrftoken cookie for the React app (session-authenticated requests)."""
     permission_classes = [AllowAny]
     authentication_classes = []
+
+    def get(self, request):
+        return Response({'detail': 'CSRF cookie set'})
+
+
+# ── Chatbot ───────────────────────────────────────────────────────────────────
+
+class ChatbotAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = API_AUTH
+
+    def post(self, request):
+        serializer = ChatMessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reply = get_chatbot_reply(serializer.validated_data['message'], request.user.username)
+        return Response({'reply': reply, 'message': serializer.validated_data['message']})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ResendActivationAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        email = request.data.get('email', '').strip()
+        if not email:
+            return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = AuthUser.objects.get(email=email)
+        except AuthUser.DoesNotExist:
+            return Response(
+                {'message': 'If that email is registered, an activation link has been sent.'},
+                status=status.HTTP_200_OK,
+            )
+        profile = user.profile
+        if profile.is_email_verified:
+            return Response({'message': 'This account is already activated.'}, status=status.HTTP_200_OK)
+        token = profile.generate_activation_token()
+        activation_url = f"{settings.FRONTEND_URL}/activate?token={token}"
+        html_message = render_to_string('emails/activation.html', {
+            'username': user.username,
+            'activation_url': activation_url,
+        })
+        send_mail(
+            subject='Activate Your School Portal Account',
+            message=strip_tags(html_message),
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local'),
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return Response({'message': 'Activation email sent. Please check your inbox.'})
+
+
+# ── Students ──────────────────────────────────────────────────────────────────
+
+class StudentListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Student.objects.all().order_by("student_number")
     serializer_class = StudentSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class StudentRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+class StudentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 
 # ── Subjects ──────────────────────────────────────────────────────────────────
 
-@method_decorator(csrf_exempt, name="dispatch")
 class SubjectListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Subject.objects.all().order_by("subject_code")
     serializer_class = SubjectSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class SubjectRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+class SubjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
 
 
 # ── Sections ──────────────────────────────────────────────────────────────────
 
-@method_decorator(csrf_exempt, name="dispatch")
 class SectionListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Section.objects.all().select_related("subject").order_by("subject__subject_code", "section_code")
     serializer_class = SectionSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class SectionRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+class SectionRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
 
 
 # ── Enrollments ───────────────────────────────────────────────────────────────
 
-@method_decorator(csrf_exempt, name="dispatch")
 class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
     queryset = Enrollment.objects.all().select_related("student", "subject", "section").order_by("created_at")
     serializer_class = EnrollmentSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class EnrollmentDeleteAPIView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [CanManageSchoolData]
+    authentication_classes = API_AUTH
 
     def delete(self, request, pk):
         try:
@@ -299,8 +335,8 @@ class EnrollmentDeleteAPIView(APIView):
 # ── Enrollment Summary ────────────────────────────────────────────────────────
 
 class EnrollmentSummaryAPIView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticated]
+    authentication_classes = API_AUTH
 
     def get(self, request):
         total_units = Enrollment.objects.aggregate(total=Sum("subject__units")).get("total") or 0
@@ -342,3 +378,43 @@ class EnrollmentSummaryAPIView(APIView):
                 for sub in per_subject
             ],
         }, status=status.HTTP_200_OK)
+
+
+class UserListAPIView(APIView):
+    """Admin-only: list portal users."""
+    permission_classes = [IsAdminRole]
+    authentication_classes = API_AUTH
+
+    def get(self, request):
+        users = AuthUser.objects.select_related('profile').order_by('username')
+        return Response([user_payload(u, request) for u in users])
+
+
+class UserRoleUpdateAPIView(APIView):
+    """Admin-only: update a user's role."""
+    permission_classes = [IsAdminRole]
+    authentication_classes = API_AUTH
+
+    def patch(self, request, pk):
+        role = request.data.get('role', '').lower()
+        if role not in ('admin', 'staff', 'user'):
+            return Response(
+                {'detail': 'Invalid role. Use admin, staff, or user.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            user = AuthUser.objects.get(pk=pk)
+        except AuthUser.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if user == request.user and role != 'admin':
+            return Response(
+                {'detail': 'You cannot demote your own admin access.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.role = role
+        profile.save(update_fields=['role'])
+        user.is_staff = role in ('admin', 'staff')
+        user.is_superuser = role == 'admin'
+        user.save(update_fields=['is_staff', 'is_superuser'])
+        return Response(user_payload(user, request))

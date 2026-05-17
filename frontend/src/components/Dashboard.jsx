@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isAdmin } from '../api/client';
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0);
@@ -113,12 +114,18 @@ export default function Dashboard({ user, onLogout, nightMode, onToggleNight }) 
     })), []);
 
   const quickActions = [
-    { label: 'Add student', emoji: '➕', to: '/students' },
-    { label: 'Add subject', emoji: '📚', to: '/subjects' },
-    { label: 'Create section', emoji: '🧩', to: '/sections' },
-    { label: 'Enroll student', emoji: '🎯', to: '/enrollments' },
+    { label: 'Add student', emoji: '➕', to: '/students', staffOnly: true },
+    { label: 'Add subject', emoji: '📚', to: '/subjects', staffOnly: true },
+    { label: 'Create section', emoji: '🧩', to: '/sections', staffOnly: true },
+    { label: 'Enroll student', emoji: '🎯', to: '/enrollments', staffOnly: true },
     { label: 'Enrollment summary', emoji: '📊', to: '/summary' },
-  ];
+    { label: 'Manage users (RBAC)', emoji: '🛡️', to: '/users', adminOnly: true },
+  ].filter((a) => {
+    const role = user?.role || 'user';
+    if (a.adminOnly) return isAdmin(role);
+    if (a.staffOnly) return role === 'admin' || role === 'staff';
+    return true;
+  });
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-animated">

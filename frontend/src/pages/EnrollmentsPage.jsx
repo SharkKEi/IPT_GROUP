@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 function normalizeListResponse(data) {
   if (Array.isArray(data)) return data;
@@ -156,10 +157,10 @@ export default function EnrollmentsPage({ nightMode, onToggleNight }) {
     setError('');
     try {
       const [studentsRes, subjectsRes, sectionsRes, enrollmentsRes] = await Promise.all([
-        fetch('/accounts/api/students/', { credentials: 'include' }),
-        fetch('/accounts/api/subjects/', { credentials: 'include' }),
-        fetch('/accounts/api/sections/', { credentials: 'include' }),
-        fetch('/accounts/api/enrollments/', { credentials: 'include' }),
+        jsonFetch('/accounts/api/students/'),
+        jsonFetch('/accounts/api/subjects/'),
+        jsonFetch('/accounts/api/sections/'),
+        jsonFetch('/accounts/api/enrollments/'),
       ]);
       const [studentsData, subjectsData, sectionsData, enrollmentsData] = await Promise.all([
         studentsRes.json(), subjectsRes.json(), sectionsRes.json(), enrollmentsRes.json(),
@@ -192,10 +193,8 @@ export default function EnrollmentsPage({ nightMode, onToggleNight }) {
     setSuccess('');
 
     try {
-      const res = await fetch('/accounts/api/enrollments/', {
+      const res = await jsonFetch('/accounts/api/enrollments/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           student: Number(studentId),
           subject: Number(subjectId),
@@ -224,9 +223,8 @@ export default function EnrollmentsPage({ nightMode, onToggleNight }) {
   const handleDrop = async () => {
     if (!confirmDrop) return;
     try {
-      const res = await fetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, {
+      const res = await jsonFetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, {
         method: 'DELETE',
-        credentials: 'include',
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

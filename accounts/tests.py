@@ -1,4 +1,6 @@
-from django.test import TestCase
+from django.test import TestCase  # noqa: F401 — enrollment tests below
+
+# API / RBAC tests live in tests_api.py (auto-discovered by Django).
 from rest_framework.serializers import ValidationError as DRFValidationError
 
 from django.contrib.auth import get_user_model

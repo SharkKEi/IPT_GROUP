@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 function CapacityBar({ enrolled, capacity }) {
   const pct = Math.min((enrolled / capacity) * 100, 100);
@@ -71,11 +72,11 @@ export default function EnrollmentSummaryPage({ nightMode, onToggleNight }) {
     setError('');
     try {
       const [summaryRes, sectionsRes, enrollmentsRes, subjectsRes, studentsRes] = await Promise.all([
-        fetch('/accounts/api/enrollment-summary/', { credentials: 'include' }),
-        fetch('/accounts/api/sections/', { credentials: 'include' }),
-        fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-        fetch('/accounts/api/subjects/', { credentials: 'include' }),
-        fetch('/accounts/api/students/', { credentials: 'include' }),
+        jsonFetch('/accounts/api/enrollment-summary/'),
+        jsonFetch('/accounts/api/sections/'),
+        jsonFetch('/accounts/api/enrollments/'),
+        jsonFetch('/accounts/api/subjects/'),
+        jsonFetch('/accounts/api/students/'),
       ]);
       const [summaryData, sectionsData, enrollmentsData, subjectsData, studentsData] = await Promise.all([
         summaryRes.json(), sectionsRes.json(), enrollmentsRes.json(), subjectsRes.json(), studentsRes.json(),
@@ -163,8 +164,8 @@ export default function EnrollmentSummaryPage({ nightMode, onToggleNight }) {
   const handleDrop = async () => {
     if (!confirmDrop) return;
     try {
-      const res = await fetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, {
-        method: 'DELETE', credentials: 'include',
+      const res = await jsonFetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, {
+        method: 'DELETE',
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

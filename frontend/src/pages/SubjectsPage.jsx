@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 function normalizeListResponse(data) {
   if (Array.isArray(data)) return data;
@@ -36,10 +37,8 @@ function EditModal({ subject, onClose, onSave }) {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch(`/accounts/api/subjects/${subject.id}/`, {
+      const res = await jsonFetch(`/accounts/api/subjects/${subject.id}/`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ subject_code: subjectCode, title, units: Number(units) }),
       });
       if (!res.ok) {
@@ -110,7 +109,7 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/accounts/api/subjects/', { credentials: 'include' });
+      const res = await jsonFetch('/accounts/api/subjects/');
       const data = await res.json();
       setSubjects(normalizeListResponse(data));
     } catch {
@@ -136,10 +135,8 @@ export default function SubjectsPage({ nightMode, onToggleNight }) {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/accounts/api/subjects/', {
+      const res = await jsonFetch('/accounts/api/subjects/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ subject_code: subjectCode, title, units: Number(units) }),
       });
       if (!res.ok) {

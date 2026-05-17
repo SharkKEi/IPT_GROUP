@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
+from accounts.models import UserProfile
+
 
 class Command(BaseCommand):
     help = "Create default admin user (username: admin, password: admin123) if missing."
@@ -32,4 +34,9 @@ class Command(BaseCommand):
             user.is_superuser = True
             user.save(update_fields=["password", "is_active", "is_staff", "is_superuser"])
             self.stdout.write(self.style.SUCCESS(f"Updated default admin credentials for: {username}"))
+
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.role = UserProfile.Role.ADMIN
+        profile.is_email_verified = True
+        profile.save(update_fields=['role', 'is_email_verified'])
 

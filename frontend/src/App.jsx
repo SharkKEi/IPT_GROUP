@@ -1,22 +1,27 @@
-import { useEffect, useState } from 'react'
+import { lazy, useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import Dashboard from './components/Dashboard.jsx'
-import EnrollmentSummaryPage from './pages/EnrollmentSummaryPage.jsx'
-import EnrollmentsPage from './pages/EnrollmentsPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
-import SectionsPage from './pages/SectionsPage.jsx'
-import StudentsPage from './pages/StudentsPage.jsx'
-import SubjectsPage from './pages/SubjectsPage.jsx'
+import Chatbot from './components/Chatbot.jsx'
+import ProtectedLayout from './components/ProtectedLayout.jsx'
+import { useAuth } from './context/AuthContext.jsx'
+import { isAdmin } from './api/client.js'
 import RegisterPage from './pages/RegisterPage.jsx'
 import ActivatePage from './pages/ActivatePage.jsx'
 
+const Dashboard = lazy(() => import('./components/Dashboard.jsx'))
+const EnrollmentSummaryPage = lazy(() => import('./pages/EnrollmentSummaryPage.jsx'))
+const EnrollmentsPage = lazy(() => import('./pages/EnrollmentsPage.jsx'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'))
+const SectionsPage = lazy(() => import('./pages/SectionsPage.jsx'))
+const StudentsPage = lazy(() => import('./pages/StudentsPage.jsx'))
+const SubjectsPage = lazy(() => import('./pages/SubjectsPage.jsx'))
+const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage.jsx'))
+
 function App() {
+  const { user, isLoggedIn, login, logout, setUser } = useAuth();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [remember, setRemember] = useState(true);
-  const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [nightMode, setNightMode] = useState(() => {
     return localStorage.getItem('nightMode') === 'true';
@@ -42,46 +47,18 @@ function App() {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('/accounts/api/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ...formData, remember }),
-      });
-      if (response.ok) {
-        const meRes = await fetch('/accounts/api/me/', { credentials: 'include' });
-        const meData = await meRes.json();
-        setIsLoggedIn(true);
-        setUser({
-          username: meData.username,
-          email: meData.email,
-          first_name: meData.first_name,
-          last_name: meData.last_name,
-          is_staff: meData.is_staff,
-          profile_picture: meData.profile_picture || null,
-        });
-        setError('');
-        navigate('/dashboard');
-      } else {
-        const data = await response.json().catch(() => ({}));
-        setError(data.detail || data.message || 'Invalid credentials');
-      }
-    } catch {
-      setError('Network error');
+      await login({ ...formData, remember });
+      setError('');
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.data?.detail || err.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    try {
-      await fetch('/accounts/api/logout/', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch { /* ignore */ }
-    setIsLoggedIn(false);
-    setUser(null);
+    await logout();
     setFormData({ username: '', password: '' });
     setError('');
     setRemember(true);
@@ -207,29 +184,33 @@ function App() {
     </div>
   );
 
-  const withNightToggle = (Component, extraProps = {}) => (
-    <Component
-      user={user}
-      onLogout={handleLogout}
-      nightMode={nightMode}
-      onToggleNight={() => setNightMode(n => !n)}
-      {...extraProps}
-    />
-  );
+  const shellProps = {
+    nightMode,
+    onToggleNight: () => setNightMode((n) => !n),
+  };
 
   return (
-    <Routes>
-      <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
-      <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
-      <Route path="/activate" element={<ActivatePage />} />
-      <Route path="/dashboard" element={isLoggedIn ? withNightToggle(Dashboard) : <Navigate to="/" replace />} />
-      <Route path="/profile" element={isLoggedIn ? withNightToggle(ProfilePage, { onProfileUpdate: handleProfileUpdate }) : <Navigate to="/" replace />} />
-      <Route path="/students" element={isLoggedIn ? <StudentsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
-      <Route path="/subjects" element={isLoggedIn ? <SubjectsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
-      <Route path="/sections" element={isLoggedIn ? <SectionsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
-      <Route path="/enrollments" element={isLoggedIn ? <EnrollmentsPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
-      <Route path="/summary" element={isLoggedIn ? <EnrollmentSummaryPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} /> : <Navigate to="/" replace />} />
-    </Routes>
+    <>
+      {isLoggedIn && <Chatbot />}
+      <Routes>
+        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
+        <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
+        <Route path="/activate" element={<ActivatePage />} />
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} {...shellProps} />} />
+          <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} {...shellProps} />} />
+          <Route path="/students" element={<StudentsPage {...shellProps} />} />
+          <Route path="/subjects" element={<SubjectsPage {...shellProps} />} />
+          <Route path="/sections" element={<SectionsPage {...shellProps} />} />
+          <Route path="/enrollments" element={<EnrollmentsPage {...shellProps} />} />
+          <Route path="/summary" element={<EnrollmentSummaryPage {...shellProps} />} />
+          <Route
+            path="/users"
+            element={isAdmin(user?.role) ? <AdminUsersPage /> : <Navigate to="/dashboard" replace />}
+          />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

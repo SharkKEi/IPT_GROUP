@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 function normalizeListResponse(data) {
   if (Array.isArray(data)) return data;
@@ -37,10 +38,8 @@ function EditModal({ section, subjects, onClose, onSave }) {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch(`/accounts/api/sections/${section.id}/`, {
+      const res = await jsonFetch(`/accounts/api/sections/${section.id}/`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           section_code: sectionCode,
           capacity: Number(capacity),
@@ -133,8 +132,8 @@ export default function SectionsPage({ nightMode, onToggleNight }) {
     setError('');
     try {
       const [subjectsRes, sectionsRes] = await Promise.all([
-        fetch('/accounts/api/subjects/', { credentials: 'include' }),
-        fetch('/accounts/api/sections/', { credentials: 'include' }),
+        jsonFetch('/accounts/api/subjects/'),
+        jsonFetch('/accounts/api/sections/'),
       ]);
       const subjectsData = await subjectsRes.json();
       const sectionsData = await sectionsRes.json();
@@ -157,10 +156,8 @@ export default function SectionsPage({ nightMode, onToggleNight }) {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/accounts/api/sections/', {
+      const res = await jsonFetch('/accounts/api/sections/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ subject: Number(subjectId), section_code: sectionCode, capacity: Number(capacity), schedule }),
       });
       if (!res.ok) {

@@ -18,9 +18,15 @@ class LoginSerializer(serializers.Serializer):
             user = authenticate(username=username, password=password)
             if not user:
                 raise serializers.ValidationError('Invalid credentials')
-            # In production, require email verification. In development (DEBUG=True), skip.
-            if not settings.DEBUG and hasattr(user, 'profile') and not user.profile.is_email_verified:
-                raise serializers.ValidationError('Account is not activated. Please check your email.')
+            if getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False):
+                if hasattr(user, 'profile') and not user.profile.is_email_verified:
+                    raise serializers.ValidationError(
+                        'Account is not activated. Please check your email for the activation link.'
+                    )
+                if not user.is_active:
+                    raise serializers.ValidationError(
+                        'Account is not activated. Please check your email for the activation link.'
+                    )
             attrs['user'] = user
         else:
             raise serializers.ValidationError('Must include username and password.')
@@ -54,20 +60,23 @@ class RegisterSerializer(serializers.Serializer):
         picture = validated_data.pop('profile_picture', None)
         validated_data.pop('confirm_password')
         password = validated_data.pop('password')
-        # In DEBUG mode (development), auto-activate accounts. In production, require email activation.
-        is_active = settings.DEBUG
-        user = User.objects.create_user(**validated_data, is_active=is_active)
+        require_verify = getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False)
+        user = User.objects.create_user(**validated_data, is_active=not require_verify)
         user.set_password(password)
         user.save()
-        profile = UserProfile.objects.create(user=user)
+        profile = UserProfile.objects.create(user=user, role=UserProfile.Role.USER)
         if picture:
             profile.profile_picture = picture
             profile.save(update_fields=['profile_picture'])
-        # Auto-verify email in DEBUG mode, require activation in production
-        if settings.DEBUG:
+        if not require_verify:
             profile.is_email_verified = True
+            profile.save(update_fields=['is_email_verified'])
         profile.generate_activation_token()
         return user
+
+
+class ChatMessageSerializer(serializers.Serializer):
+    message = serializers.CharField(max_length=2000, trim_whitespace=True)
 
 
 class StudentSerializer(serializers.ModelSerializer):

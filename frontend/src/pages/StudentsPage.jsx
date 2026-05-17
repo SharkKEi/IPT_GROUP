@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 function normalizeListResponse(data) {
   if (Array.isArray(data)) return data;
@@ -35,10 +36,8 @@ function EditModal({ student, onClose, onSave }) {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch(`/accounts/api/students/${student.id}/`, {
+      const res = await jsonFetch(`/accounts/api/students/${student.id}/`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ student_number: studentNumber, full_name: fullName }),
       });
       if (!res.ok) {
@@ -103,7 +102,7 @@ export default function StudentsPage({ nightMode, onToggleNight }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/accounts/api/students/', { credentials: 'include' });
+      const res = await jsonFetch('/accounts/api/students/');
       const data = await res.json();
       setStudents(normalizeListResponse(data));
     } catch {
@@ -129,10 +128,8 @@ export default function StudentsPage({ nightMode, onToggleNight }) {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/accounts/api/students/', {
+      const res = await jsonFetch('/accounts/api/students/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ student_number: studentNumber, full_name: fullName }),
       });
       if (!res.ok) {

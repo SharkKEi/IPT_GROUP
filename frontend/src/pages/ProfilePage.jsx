@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-function getCsrfToken() {
-    const name = 'csrftoken';
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        const trimmed = cookie.trim();
-        if (trimmed.startsWith(name + '=')) {
-            return trimmed.substring(name.length + 1);
-        }
-    }
-    return '';
-}
+import { jsonFetch } from '../api/client';
 
 export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode, onToggleNight }) {
     const navigate = useNavigate();
@@ -30,7 +19,7 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await fetch('/accounts/api/me/', { credentials: 'include' });
+                const res = await jsonFetch('/accounts/api/me/');
                 if (!res.ok) { setError('Failed to load profile.'); return; }
                 const data = await res.json();
                 setProfile(data);
@@ -68,10 +57,8 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
         if (newPicture) formData.append('profile_picture', newPicture);
 
         try {
-            const res = await fetch('/accounts/api/me/', {
+            const res = await jsonFetch('/accounts/api/me/', {
                 method: 'PATCH',
-                credentials: 'include',
-                headers: { 'X-CSRFToken': getCsrfToken() },
                 body: formData,
             });
             const data = await res.json().catch(() => ({}));
@@ -194,7 +181,12 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
                                             { label: 'Email', value: profile.email || '—' },
                                             { label: 'First name', value: profile.first_name || '—' },
                                             { label: 'Last name', value: profile.last_name || '—' },
-                                            { label: 'Role', value: profile.is_staff ? 'Administrator' : 'Staff' },
+                                            {
+                                              label: 'Role',
+                                              value: { admin: 'Administrator', staff: 'Staff', user: 'User' }[
+                                                profile.role || (profile.is_staff ? 'admin' : 'user')
+                                              ] || 'User',
+                                            },
                                             {
                                                 label: 'Date joined',
                                                 value: new Date(profile.date_joined).toLocaleDateString('en-US', {

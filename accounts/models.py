@@ -5,8 +5,14 @@ import secrets
 
 
 class UserProfile(models.Model):
+    class Role(models.TextChoices):
+        ADMIN = 'admin', 'Administrator'
+        STAFF = 'staff', 'Staff'
+        USER = 'user', 'User'
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
 
