@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
+=======
+import { useEffect, useRef, useState } from 'react';
+>>>>>>> 56b74d6 (Updated project code)
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function ActivatePage() {
@@ -6,9 +10,23 @@ export default function ActivatePage() {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('loading');
     const [message, setMessage] = useState('');
+<<<<<<< HEAD
 
     useEffect(() => {
         const token = searchParams.get('token');
+=======
+    const activationStarted = useRef(false);
+
+    useEffect(() => {
+        // React StrictMode runs effects twice in local development.
+        // Without this guard, the first request activates the account and clears the token,
+        // then the second request reports "invalid or expired token".
+        if (activationStarted.current) return;
+        activationStarted.current = true;
+
+        const token = searchParams.get('token');
+        const uid = searchParams.get('uid');
+>>>>>>> 56b74d6 (Updated project code)
         if (!token) {
             setStatus('error');
             setMessage('Activation token is missing.');
@@ -17,7 +35,14 @@ export default function ActivatePage() {
 
         const activate = async () => {
             try {
+<<<<<<< HEAD
                 const res = await fetch(`/accounts/api/activate/?token=${encodeURIComponent(token)}`);
+=======
+                const query = new URLSearchParams({ token });
+                if (uid) query.set('uid', uid);
+
+                const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
+>>>>>>> 56b74d6 (Updated project code)
                 const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                     setStatus('success');

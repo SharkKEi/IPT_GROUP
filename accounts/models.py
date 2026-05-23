@@ -1,6 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+<<<<<<< HEAD
+=======
+from django.utils import timezone
+from datetime import timedelta
+>>>>>>> 56b74d6 (Updated project code)
 import secrets
 
 
@@ -15,12 +20,32 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
+<<<<<<< HEAD
 
     def generate_activation_token(self):
         self.activation_token = secrets.token_urlsafe(32)
         self.save(update_fields=['activation_token'])
         return self.activation_token
 
+=======
+    token_expires_at = models.DateTimeField(null=True, blank=True)  # Token expiration
+
+    def generate_activation_token(self, expires_in_hours=24):
+        """Generate activation token that expires in specified hours (default: 24)."""
+        self.activation_token = secrets.token_urlsafe(32)
+        self.token_expires_at = timezone.now() + timedelta(hours=expires_in_hours)
+        self.save(update_fields=['activation_token', 'token_expires_at'])
+        return self.activation_token
+
+    def is_token_valid(self):
+        """Check if activation token is still valid."""
+        if not self.activation_token:
+            return False
+        if self.token_expires_at and timezone.now() > self.token_expires_at:
+            return False
+        return True
+
+>>>>>>> 56b74d6 (Updated project code)
     def __str__(self):
         return f"Profile of {self.user.username}"
 
