@@ -2,10 +2,15 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from django.utils import timezone
 from datetime import timedelta
 >>>>>>> 56b74d6 (Updated project code)
+=======
+from django.utils import timezone
+from datetime import timedelta
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import secrets
 
 
@@ -21,6 +26,7 @@ class UserProfile(models.Model):
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     def generate_activation_token(self):
         self.activation_token = secrets.token_urlsafe(32)
@@ -28,6 +34,8 @@ class UserProfile(models.Model):
         return self.activation_token
 
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     token_expires_at = models.DateTimeField(null=True, blank=True)  # Token expiration
 
     def generate_activation_token(self, expires_in_hours=24):
@@ -45,7 +53,10 @@ class UserProfile(models.Model):
             return False
         return True
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     def __str__(self):
         return f"Profile of {self.user.username}"
 

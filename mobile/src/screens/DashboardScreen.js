@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apiRequest, canManage } from '../api';
@@ -52,6 +53,8 @@ export default function DashboardScreen({ navigation }) {
       </Pressable>
     </ScrollView>
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { apiRequest, canManage, isAdmin } from '../api';
@@ -148,7 +151,10 @@ export default function DashboardScreen({ navigation }) {
       <AppButton title="Refresh Dashboard" tone="ghost" onPress={load} loading={loading} />
       <AppButton title="Log out" tone="danger" onPress={logout} style={{ marginTop: 10 }} />
     </Screen>
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   );
 }
 
@@ -162,6 +168,7 @@ function Stat({ label, value }) {
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
 <<<<<<< HEAD
   container: { padding: 20 },
   greeting: { fontSize: 24, fontWeight: '700', color: '#fff' },
@@ -186,6 +193,8 @@ const styles = StyleSheet.create({
   cardText: { color: '#fff', fontWeight: '600' },
   logout: { marginTop: 24, backgroundColor: 'rgba(239,68,68,0.25)' },
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   profileRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 14 },
   name: { color: colors.text, fontWeight: '900', fontSize: 19 },
   email: { color: colors.muted, marginTop: 3 },
@@ -194,5 +203,8 @@ const styles = StyleSheet.create({
   statValue: { color: colors.text, fontSize: 28, fontWeight: '900' },
   statLabel: { color: colors.muted, fontSize: 12, marginTop: 4 },
   gap: { height: 10 },
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 });

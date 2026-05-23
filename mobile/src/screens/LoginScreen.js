@@ -1,5 +1,6 @@
 import { useState } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   ActivityIndicator,
   Pressable,
@@ -10,12 +11,17 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { API_BASE } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { AlertBox, AppButton, AppInput, GlassCard, LinkButton, Screen } from '../ui';
 import { colors } from '../theme';
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -26,6 +32,7 @@ export default function LoginScreen({ navigation }) {
 
   const onSubmit = async () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     setError('');
     setLoading(true);
     try {
@@ -33,6 +40,8 @@ export default function LoginScreen({ navigation }) {
     } catch (e) {
       setError(e.message || 'Login failed');
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     if (loading) return;
     const cleanUsername = username.trim();
     if (!cleanUsername || !password) {
@@ -46,13 +55,17 @@ export default function LoginScreen({ navigation }) {
       await login(cleanUsername, password);
     } catch (e) {
       setError(e.message || 'Login failed.');
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     } finally {
       setLoading(false);
     }
   };
 
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD
     <View style={styles.container}>
       <Text style={styles.title}>School Portal</Text>
@@ -82,6 +95,8 @@ export default function LoginScreen({ navigation }) {
       </Pressable>
     </View>
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen scroll={false}>
         <View style={styles.center}>
@@ -117,11 +132,15 @@ export default function LoginScreen({ navigation }) {
         </View>
       </Screen>
     </KeyboardAvoidingView>
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
 <<<<<<< HEAD
   container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#1e0b4d' },
   title: { fontSize: 32, fontWeight: '700', color: '#fff', textAlign: 'center' },
@@ -144,10 +163,15 @@ const styles = StyleSheet.create({
   link: { color: '#a5b4fc', textAlign: 'center', marginTop: 20 },
   error: { color: '#fca5a5', marginBottom: 12, textAlign: 'center' },
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   center: { flex: 1, justifyContent: 'center', padding: 22 },
   title: { color: colors.text, fontSize: 38, fontWeight: '900', textAlign: 'center' },
   subtitle: { color: colors.muted, fontSize: 16, textAlign: 'center', marginTop: 8, marginBottom: 22 },
   card: { marginBottom: 10 },
   apiText: { color: colors.faint, fontSize: 11, textAlign: 'center', marginTop: 8 },
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 });

@@ -4,6 +4,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -31,6 +32,8 @@
   "private": true
 }
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     "start": "expo start --lan",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -60,4 +63,7 @@
   },
   "private": true
 }
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)

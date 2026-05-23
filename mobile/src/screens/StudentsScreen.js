@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -10,17 +11,23 @@ import {
 } from 'react-native';
 import { apiRequest } from '../api';
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { apiRequest } from '../api';
 import { AlertBox, AppButton, AppInput, DataRow, GlassCard, Screen, SectionTitle, SmallButton } from '../ui';
 import { colors } from '../theme';
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 export default function StudentsScreen() {
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState({ student_number: '', full_name: '' });
   const [editingId, setEditingId] = useState(null);
+<<<<<<< HEAD
 <<<<<<< HEAD
 
   const load = async () => {
@@ -133,6 +140,8 @@ const styles = StyleSheet.create({
   delete: { color: '#f87171' },
 });
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -226,4 +235,7 @@ const styles = StyleSheet.create({
 }
 
 const styles = StyleSheet.create({ empty: { color: colors.muted, textAlign: 'center', paddingVertical: 12 } });
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)

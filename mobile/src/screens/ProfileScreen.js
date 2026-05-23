@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_BASE, apiRequest, getStoredTokens } from '../api';
 import { useAuth } from '../context/AuthContext';
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { Image, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_BASE, getErrorMessage, getStoredTokens } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { AlertBox, AppButton, AppInput, Badge, GlassCard, Screen } from '../ui';
 import { colors } from '../theme';
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 export default function ProfileScreen() {
   const { user, setUser } = useAuth();
@@ -19,9 +25,13 @@ export default function ProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const [error, setError] = useState('');
 >>>>>>> 56b74d6 (Updated project code)
+=======
+  const [error, setError] = useState('');
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
   useEffect(() => {
     if (user) {
@@ -34,10 +44,13 @@ export default function ProfileScreen() {
   }, [user]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   const patchProfile = async (includePhotoUri) => {
     setSaving(true);
     setMessage('');
@@ -77,11 +90,15 @@ export default function ProfileScreen() {
       setError('Photo permission is required to upload a profile picture.');
       return;
     }
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
     });
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (result.canceled) return;
     await uploadProfile(result.assets[0].uri);
@@ -173,6 +190,8 @@ export default function ProfileScreen() {
       </Pressable>
     </View>
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     if (!result.canceled) await patchProfile(result.assets[0].uri);
   };
 
@@ -202,11 +221,15 @@ export default function ProfileScreen() {
         <AppButton title="Save profile" onPress={() => patchProfile(null)} loading={saving} />
       </GlassCard>
     </Screen>
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
 <<<<<<< HEAD
   container: { flex: 1, padding: 20, alignItems: 'center' },
   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 12 },
@@ -233,9 +256,14 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: '#fff', fontWeight: '600' },
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   avatar: { width: 110, height: 110, borderRadius: 55, marginBottom: 12, borderWidth: 2, borderColor: 'rgba(255,255,255,0.25)' },
   avatarPlaceholder: { backgroundColor: '#4f46e5', alignItems: 'center', justifyContent: 'center' },
   avatarLetter: { color: colors.text, fontSize: 42, fontWeight: '900' },
   username: { color: colors.text, fontWeight: '900', fontSize: 20, marginBottom: 8 },
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 });

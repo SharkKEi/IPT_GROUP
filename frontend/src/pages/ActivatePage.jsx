@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 =======
 import { useEffect, useRef, useState } from 'react';
 >>>>>>> 56b74d6 (Updated project code)
+=======
+import { useEffect, useRef, useState } from 'react';
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function ActivatePage() {
@@ -11,10 +15,13 @@ export default function ActivatePage() {
     const [status, setStatus] = useState('loading');
     const [message, setMessage] = useState('');
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     useEffect(() => {
         const token = searchParams.get('token');
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const activationStarted = useRef(false);
 
     useEffect(() => {
@@ -26,7 +33,10 @@ export default function ActivatePage() {
 
         const token = searchParams.get('token');
         const uid = searchParams.get('uid');
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         if (!token) {
             setStatus('error');
             setMessage('Activation token is missing.');
@@ -36,13 +46,19 @@ export default function ActivatePage() {
         const activate = async () => {
             try {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 const res = await fetch(`/accounts/api/activate/?token=${encodeURIComponent(token)}`);
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 const query = new URLSearchParams({ token });
                 if (uid) query.set('uid', uid);
 
                 const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                     setStatus('success');

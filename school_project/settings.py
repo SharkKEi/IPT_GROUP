@@ -15,6 +15,7 @@ from datetime import timedelta
 from pathlib import Path
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -25,6 +26,8 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -36,7 +39,10 @@ try:
 except ImportError:
     pass
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -176,8 +182,15 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # ── Logging ──────────────────────────────────────────────────────────────────
+=======
+# ── Logging ──────────────────────────────────────────────────────────────────
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -194,7 +207,11 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.FileHandler',
+<<<<<<< HEAD
             'filename': BASE_DIR / 'logs' / 'django.log',
+=======
+            'filename': LOG_DIR / 'django.log',
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
             'formatter': 'verbose',
         },
     },
@@ -210,7 +227,10 @@ LOGGING = {
     },
 }
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -220,10 +240,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,  # Items per page
 >>>>>>> 56b74d6 (Updated project code)
+=======
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,  # Items per page
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 }
 
 SIMPLE_JWT = {
@@ -235,11 +260,16 @@ SIMPLE_JWT = {
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CORS_ALLOWED_ORIGINS = [
 =======
 # ── CORS & CSRF (DRY: shared trusted hosts) ─────────────────────────────────
 TRUSTED_HOSTS = [
 >>>>>>> 56b74d6 (Updated project code)
+=======
+# ── CORS & CSRF (DRY: shared trusted hosts) ─────────────────────────────────
+TRUSTED_HOSTS = [
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
@@ -249,15 +279,20 @@ TRUSTED_HOSTS = [
 ]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
 >>>>>>> 56b74d6 (Updated project code)
+=======
+CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
 # Allow CSRF Origin header from the frontend dev server (Vite).
+<<<<<<< HEAD
 <<<<<<< HEAD
 # Required when the browser sends an Origin header on unsafe requests.
 CSRF_TRUSTED_ORIGINS = [
@@ -269,12 +304,16 @@ CSRF_TRUSTED_ORIGINS = [
 =======
 CSRF_TRUSTED_ORIGINS = TRUSTED_HOSTS
 >>>>>>> 56b74d6 (Updated project code)
+=======
+CSRF_TRUSTED_ORIGINS = TRUSTED_HOSTS
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 # SPA on Vite (proxied to Django): allow cookie on localhost
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 
 # ── Email Configuration ──────────────────────────────────────────────────────
+<<<<<<< HEAD
 <<<<<<< HEAD
 # For development, emails are printed to the console.
 # For production, switch to Gmail SMTP by uncommenting the lines below
@@ -293,6 +332,8 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@schoolportal.local')
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
 # IMPORTANT: EMAIL_HOST_PASSWORD must be a Google App Password, not your normal Gmail password.
 
@@ -310,7 +351,10 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '').strip()
 DEFAULT_FROM_EMAIL = (os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@schoolportal.local').strip()
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 # Set REQUIRE_EMAIL_VERIFICATION=true in production to enforce activation before login.
 REQUIRE_EMAIL_VERIFICATION = os.environ.get(
@@ -318,6 +362,7 @@ REQUIRE_EMAIL_VERIFICATION = os.environ.get(
     'false' if DEBUG else 'true',
 ).lower() in ('1', 'true', 'yes')
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
@@ -327,6 +372,8 @@ REQUIRE_EMAIL_VERIFICATION = os.environ.get(
 # EMAIL_HOST_PASSWORD = 'your-app-password'
 # DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 # Disable django-ratelimit during local development so repeated testing does not
 # return blank 403/429 HTML responses to the React signup page.
 RATELIMIT_ENABLE = os.environ.get(
@@ -334,5 +381,8 @@ RATELIMIT_ENABLE = os.environ.get(
     'False' if DEBUG else 'True',
 ).lower() in ('1', 'true', 'yes')
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 

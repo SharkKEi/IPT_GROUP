@@ -3,9 +3,13 @@ from django.contrib.auth.models import User as AuthUser
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from django_ratelimit.decorators import ratelimit
 >>>>>>> 56b74d6 (Updated project code)
+=======
+from django_ratelimit.decorators import ratelimit
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 from rest_framework import status, generics
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -13,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Count, Sum
+<<<<<<< HEAD
 <<<<<<< HEAD
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -22,6 +27,8 @@ from django.conf import settings
 from .chatbot import get_chatbot_reply
 from .jwt_serializers import user_payload
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 from django.conf import settings
 import logging
 
@@ -30,7 +37,10 @@ logger = logging.getLogger(__name__)
 from .chatbot import get_chatbot_reply
 from .jwt_serializers import user_payload
 from .email_utils import send_activation_email
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 from .models import Enrollment, Section, Student, Subject, UserProfile
 from .permissions import CanManageSchoolData, IsAdminRole
 from .serializers import (
@@ -50,9 +60,13 @@ API_AUTH = [SessionAuthentication, JWTAuthentication]
 
 @method_decorator(csrf_exempt, name='dispatch')
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
 >>>>>>> 56b74d6 (Updated project code)
+=======
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -118,9 +132,13 @@ class MeAPIView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 @method_decorator(ratelimit(key='ip', rate='3/h', method='POST'), name='dispatch')
 >>>>>>> 56b74d6 (Updated project code)
+=======
+@method_decorator(ratelimit(key='ip', rate='3/h', method='POST'), name='dispatch')
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 class RegisterAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -132,6 +150,7 @@ class RegisterAPIView(APIView):
         profile = user.profile
         token = profile.activation_token
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         activation_url = f"{settings.FRONTEND_URL}/activate?token={token}"
         html_message = render_to_string('emails/activation.html', {
@@ -148,6 +167,8 @@ class RegisterAPIView(APIView):
             fail_silently=False,
         )
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         activation_url = f"{settings.FRONTEND_URL}/activate?uid={user.pk}&token={token}"
         try:
             send_activation_email(user, activation_url)
@@ -159,7 +180,10 @@ class RegisterAPIView(APIView):
                 'username': user.username,
                 'requires_activation': getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False),
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
         if getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False):
             message = 'Registration successful. Please check your email to activate your account.'
@@ -168,10 +192,14 @@ class RegisterAPIView(APIView):
 
         return Response({
 <<<<<<< HEAD
+<<<<<<< HEAD
             'message': message,
 =======
             'detail': message,
 >>>>>>> 56b74d6 (Updated project code)
+=======
+            'detail': message,
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
             'username': user.username,
             'requires_activation': getattr(settings, 'REQUIRE_EMAIL_VERIFICATION', False),
         }, status=status.HTTP_201_CREATED)
@@ -185,6 +213,7 @@ class ActivateAccountAPIView(APIView):
     def get(self, request):
         token = request.query_params.get('token')
 <<<<<<< HEAD
+<<<<<<< HEAD
         if not token:
             return Response({'detail': 'Activation token is required.'}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -192,6 +221,8 @@ class ActivateAccountAPIView(APIView):
         except UserProfile.DoesNotExist:
             return Response({'detail': 'Invalid or expired activation token.'}, status=status.HTTP_400_BAD_REQUEST)
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         uid = request.query_params.get('uid')
         if not token:
             return Response({'detail': 'Activation token is required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -222,7 +253,10 @@ class ActivateAccountAPIView(APIView):
         if not profile.is_token_valid():
             logger.warning(f'Expired token used for activation: {profile.user.username}')
             return Response({'detail': 'Activation token has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
         user = profile.user
         user.is_active = True
@@ -230,11 +264,16 @@ class ActivateAccountAPIView(APIView):
         profile.is_email_verified = True
         profile.activation_token = None
 <<<<<<< HEAD
+<<<<<<< HEAD
         profile.save(update_fields=['is_email_verified', 'activation_token'])
 =======
         profile.token_expires_at = None
         profile.save(update_fields=['is_email_verified', 'activation_token', 'token_expires_at'])
 >>>>>>> 56b74d6 (Updated project code)
+=======
+        profile.token_expires_at = None
+        profile.save(update_fields=['is_email_verified', 'activation_token', 'token_expires_at'])
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
         return Response({'message': 'Account activated successfully. You can now log in.'}, status=status.HTTP_200_OK)
 
@@ -266,17 +305,23 @@ class DevActivateAPIView(APIView):
         profile.is_email_verified = True
         profile.activation_token = None
 <<<<<<< HEAD
+<<<<<<< HEAD
         profile.save(update_fields=['is_email_verified', 'activation_token'])
 
         return Response({
             'message': f'Account "{username}" activated successfully.',
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         profile.token_expires_at = None
         profile.save(update_fields=['is_email_verified', 'activation_token', 'token_expires_at'])
 
         return Response({
             'detail': f'Account "{username}" activated successfully.',
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
             'username': username,
             'is_active': True,
             'is_email_verified': True,
@@ -310,9 +355,13 @@ class ChatbotAPIView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 @method_decorator(ratelimit(key='ip', rate='5/h', method='POST'), name='dispatch')
 >>>>>>> 56b74d6 (Updated project code)
+=======
+@method_decorator(ratelimit(key='ip', rate='5/h', method='POST'), name='dispatch')
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 class ResendActivationAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -326,14 +375,19 @@ class ResendActivationAPIView(APIView):
         except AuthUser.DoesNotExist:
             return Response(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 {'message': 'If that email is registered, an activation link has been sent.'},
 =======
                 {'detail': 'If that email is registered, an activation link has been sent.'},
 >>>>>>> 56b74d6 (Updated project code)
+=======
+                {'detail': 'If that email is registered, an activation link has been sent.'},
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 status=status.HTTP_200_OK,
             )
         profile = user.profile
         if profile.is_email_verified:
+<<<<<<< HEAD
 <<<<<<< HEAD
             return Response({'message': 'This account is already activated.'}, status=status.HTTP_200_OK)
         token = profile.generate_activation_token()
@@ -352,6 +406,8 @@ class ResendActivationAPIView(APIView):
         )
         return Response({'message': 'Activation email sent. Please check your inbox.'})
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
             return Response({'detail': 'This account is already activated.'}, status=status.HTTP_200_OK)
         token = profile.generate_activation_token()
         activation_url = f"{settings.FRONTEND_URL}/activate?uid={user.pk}&token={token}"
@@ -364,7 +420,10 @@ class ResendActivationAPIView(APIView):
                 'email_error': str(e),
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'detail': 'Activation email sent. Please check your inbox.'})
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 
 # ── Students ──────────────────────────────────────────────────────────────────
@@ -375,9 +434,13 @@ class StudentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Student.objects.all().order_by("student_number")
     serializer_class = StudentSerializer
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     pagination_class = None  # Will use DEFAULT from settings
 >>>>>>> 56b74d6 (Updated project code)
+=======
+    pagination_class = None  # Will use DEFAULT from settings
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 
 class StudentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -395,9 +458,13 @@ class SubjectListCreateAPIView(generics.ListCreateAPIView):
     queryset = Subject.objects.all().order_by("subject_code")
     serializer_class = SubjectSerializer
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     pagination_class = None  # Will use DEFAULT from settings
 >>>>>>> 56b74d6 (Updated project code)
+=======
+    pagination_class = None  # Will use DEFAULT from settings
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 
 class SubjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -415,9 +482,13 @@ class SectionListCreateAPIView(generics.ListCreateAPIView):
     queryset = Section.objects.all().select_related("subject").order_by("subject__subject_code", "section_code")
     serializer_class = SectionSerializer
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     pagination_class = None  # Will use DEFAULT from settings
 >>>>>>> 56b74d6 (Updated project code)
+=======
+    pagination_class = None  # Will use DEFAULT from settings
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 
 class SectionRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -433,10 +504,14 @@ class EnrollmentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [CanManageSchoolData]
     authentication_classes = API_AUTH
 <<<<<<< HEAD
+<<<<<<< HEAD
     queryset = Enrollment.objects.all().select_related("student", "subject", "section").order_by("created_at")
 =======
     queryset = Enrollment.objects.all().select_related("student", "subject", "section").prefetch_related().order_by("-created_at")
 >>>>>>> 56b74d6 (Updated project code)
+=======
+    queryset = Enrollment.objects.all().select_related("student", "subject", "section").prefetch_related().order_by("-created_at")
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     serializer_class = EnrollmentSerializer
 
 
@@ -453,6 +528,7 @@ class EnrollmentDeleteAPIView(APIView):
         subject_code = enrollment.subject.subject_code
         enrollment.delete()
 <<<<<<< HEAD
+<<<<<<< HEAD
         return Response(
             {"message": f"Successfully dropped {student_name} from {subject_code}."},
 =======
@@ -460,6 +536,11 @@ class EnrollmentDeleteAPIView(APIView):
         return Response(
             {"detail": f"Successfully dropped {student_name} from {subject_code}."},
 >>>>>>> 56b74d6 (Updated project code)
+=======
+        logger.info(f'Enrollment deleted: {student_name} from {subject_code}')
+        return Response(
+            {"detail": f"Successfully dropped {student_name} from {subject_code}."},
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
             status=status.HTTP_200_OK
         )
 

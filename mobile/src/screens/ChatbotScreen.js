@@ -1,5 +1,6 @@
 import { useState } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -23,6 +24,8 @@ export default function ChatbotScreen() {
     if (!text) return;
     setInput('');
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { apiRequest } from '../api';
 import { AppButton, AppInput, GlassCard, Screen } from '../ui';
@@ -40,7 +43,10 @@ export default function ChatbotScreen() {
     if (!text || sending) return;
     setInput('');
     setSending(true);
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const userMsg = { id: Date.now().toString(), from: 'user', text };
     setMessages((m) => [...m, userMsg]);
     try {
@@ -48,6 +54,7 @@ export default function ChatbotScreen() {
         method: 'POST',
         body: JSON.stringify({ message: text }),
       });
+<<<<<<< HEAD
 <<<<<<< HEAD
       setMessages((m) => [
         ...m,
@@ -59,16 +66,22 @@ export default function ChatbotScreen() {
         { id: `${Date.now()}-e`, from: 'bot', text: 'Could not reach the server.' },
       ]);
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
       setMessages((m) => [...m, { id: `${Date.now()}-b`, from: 'bot', text: data.reply || 'No reply.' }]);
     } catch (e) {
       setMessages((m) => [...m, { id: `${Date.now()}-e`, from: 'bot', text: e.message || 'Could not reach the server.' }]);
     } finally {
       setSending(false);
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     }
   };
 
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD
     <KeyboardAvoidingView
       style={styles.flex}
@@ -97,6 +110,8 @@ export default function ChatbotScreen() {
         </Pressable>
       </View>
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen title="Assistant" subtitle="Chatbot request is sent to Django API." scroll={false}>
         <View style={styles.wrap}>
@@ -114,12 +129,16 @@ export default function ChatbotScreen() {
           </GlassCard>
         </View>
       </Screen>
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
 <<<<<<< HEAD
   flex: { flex: 1 },
   list: { padding: 16, paddingBottom: 8 },
@@ -143,6 +162,8 @@ const styles = StyleSheet.create({
   },
   sendText: { color: '#fff', fontWeight: '600' },
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   wrap: { flex: 1, padding: 16 },
   chatCard: { flex: 1, marginBottom: 10 },
   inputCard: { marginBottom: 6 },
@@ -150,5 +171,8 @@ const styles = StyleSheet.create({
   user: { alignSelf: 'flex-end', backgroundColor: colors.primary },
   bot: { alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.10)' },
   text: { color: colors.text, lineHeight: 20 },
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 });

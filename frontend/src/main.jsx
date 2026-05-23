@@ -4,13 +4,18 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 >>>>>>> 56b74d6 (Updated project code)
+=======
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+<<<<<<< HEAD
 <<<<<<< HEAD
     <BrowserRouter>
       <AuthProvider>
@@ -20,6 +25,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </AuthProvider>
     </BrowserRouter>
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
@@ -29,6 +36,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
   </React.StrictMode>,
 )

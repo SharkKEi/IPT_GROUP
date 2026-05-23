@@ -36,7 +36,10 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
     };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const getErrorMessage = (result, status) => {
         if (result?.detail) return result.detail;
         if (result?.message) return result.message;
@@ -62,7 +65,10 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         return 'Registration failed. Check your input and try again.';
     };
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -82,10 +88,13 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 body: data,
             });
 <<<<<<< HEAD
+<<<<<<< HEAD
             const result = await res.json().catch(() => ({}));
             if (res.ok) {
                 setSuccess(result.message || 'Registration successful! Please check your email.');
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
             const text = await res.text();
             let result = {};
@@ -97,11 +106,15 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
 
             if (res.ok) {
                 setSuccess(result.detail || result.message || 'Registration successful! Please check your email.');
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 setForm({ username: '', email: '', password: '', confirm_password: '' });
                 setPicture(null);
                 setPreview(null);
             } else {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 const msg = result.detail || result.message || JSON.stringify(result) || 'Registration failed.';
                 setError(msg);
@@ -109,11 +122,16 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         } catch {
             setError('Network error.');
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 setError(getErrorMessage(result, res.status));
             }
         } catch {
             setError('Network error. Make sure Django backend is running on port 8000.');
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         } finally {
             setLoading(false);
         }

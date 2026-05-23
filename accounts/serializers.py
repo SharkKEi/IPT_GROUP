@@ -41,7 +41,10 @@ class RegisterSerializer(serializers.Serializer):
     profile_picture = serializers.ImageField(required=False, allow_empty_file=True)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     def validate_profile_picture(self, value):
         if value:
             # Max 5MB
@@ -49,7 +52,10 @@ class RegisterSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Profile picture must be under 5MB.')
         return value
 
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError('Username already taken.')

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { register } from '../api';
 =======
@@ -7,6 +8,11 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 import { register } from '../api';
 import { AlertBox, AppButton, AppInput, GlassCard, LinkButton, Screen } from '../ui';
 >>>>>>> 56b74d6 (Updated project code)
+=======
+import { KeyboardAvoidingView, Platform } from 'react-native';
+import { register } from '../api';
+import { AlertBox, AppButton, AppInput, GlassCard, LinkButton, Screen } from '../ui';
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 export default function RegisterScreen({ navigation }) {
   const [form, setForm] = useState({
@@ -18,13 +24,18 @@ export default function RegisterScreen({ navigation }) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const [loading, setLoading] = useState(false);
 >>>>>>> 56b74d6 (Updated project code)
+=======
+  const [loading, setLoading] = useState(false);
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
   const onSubmit = async () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     setError('');
     setMessage('');
@@ -34,6 +45,8 @@ export default function RegisterScreen({ navigation }) {
     } catch (e) {
       setError(e.message);
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     if (loading) return;
     setError('');
     setMessage('');
@@ -54,11 +67,15 @@ export default function RegisterScreen({ navigation }) {
       setError(e.message || 'Registration failed.');
     } finally {
       setLoading(false);
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     }
   };
 
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD
     <View style={styles.container}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -108,6 +125,8 @@ const styles = StyleSheet.create({
   ok: { color: '#86efac', marginBottom: 12 },
 });
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen title="Create Account" subtitle="Use the same account for web and mobile.">
         <GlassCard>
@@ -124,4 +143,7 @@ const styles = StyleSheet.create({
     </KeyboardAvoidingView>
   );
 }
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)

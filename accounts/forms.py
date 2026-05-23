@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 class SchoolLoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(
@@ -29,6 +30,8 @@ class SchoolLoginForm(AuthenticationForm):
     )
 
 =======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
 class SchoolLoginForm(AuthenticationForm):
     """Simple Django login form with no custom Tailwind styling."""
@@ -36,4 +39,7 @@ class SchoolLoginForm(AuthenticationForm):
     username = forms.CharField(label="Username")
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
     remember = forms.BooleanField(label="Remember me", required=False)
+<<<<<<< HEAD
 >>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
