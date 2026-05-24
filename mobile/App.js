@@ -8,6 +8,20 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import StudentsScreen from './src/screens/StudentsScreen';
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+import SubjectsScreen from './src/screens/SubjectsScreen';
+import SectionsScreen from './src/screens/SectionsScreen';
+import EnrollmentsScreen from './src/screens/EnrollmentsScreen';
+import SummaryScreen from './src/screens/SummaryScreen';
+import UsersScreen from './src/screens/UsersScreen';
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import ChatbotScreen from './src/screens/ChatbotScreen';
 
 const Stack = createNativeStackNavigator();
@@ -17,7 +31,15 @@ function RootNavigator() {
 
   if (booting) {
     return (
+<<<<<<< HEAD
+<<<<<<< HEAD
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e0b4d' }}>
+=======
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#16092f' }}>
+>>>>>>> 56b74d6 (Updated project code)
+=======
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#16092f' }}>
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         <ActivityIndicator size="large" color="#fff" />
       </View>
     );
@@ -26,9 +48,22 @@ function RootNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
+<<<<<<< HEAD
+<<<<<<< HEAD
         headerStyle: { backgroundColor: '#1e0b4d' },
         headerTintColor: '#fff',
         contentStyle: { backgroundColor: '#130b39' },
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+        headerStyle: { backgroundColor: '#16092f' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: '800' },
+        contentStyle: { backgroundColor: '#16092f' },
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
       }}
     >
       {!isLoggedIn ? (
@@ -41,6 +76,20 @@ function RootNavigator() {
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Students" component={StudentsScreen} />
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+          <Stack.Screen name="Subjects" component={SubjectsScreen} />
+          <Stack.Screen name="Sections" component={SectionsScreen} />
+          <Stack.Screen name="Enrollments" component={EnrollmentsScreen} />
+          <Stack.Screen name="Summary" component={SummaryScreen} options={{ title: 'Enrollment Summary' }} />
+          <Stack.Screen name="Users" component={UsersScreen} options={{ title: 'User Roles' }} />
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
           <Stack.Screen name="Chatbot" component={ChatbotScreen} options={{ title: 'Assistant' }} />
         </>
       )}

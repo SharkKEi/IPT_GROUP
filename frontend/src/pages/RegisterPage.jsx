@@ -35,6 +35,40 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         }
     };
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+    const getErrorMessage = (result, status) => {
+        if (result?.detail) return result.detail;
+        if (result?.message) return result.message;
+        if (result?.email_error) return `Email error: ${result.email_error}`;
+        if (result?.non_field_errors?.length) return result.non_field_errors.join(' ');
+
+        if (result && typeof result === 'object' && Object.keys(result).length > 0) {
+            return Object.entries(result)
+                .map(([field, value]) => {
+                    if (Array.isArray(value)) return `${field}: ${value.join(' ')}`;
+                    if (typeof value === 'object') return `${field}: ${JSON.stringify(value)}`;
+                    return `${field}: ${value}`;
+                })
+                .join(' | ');
+        }
+
+        if (status === 403 || status === 429) {
+            return 'Too many registration attempts. Please restart the Django server or wait a few minutes, then try again.';
+        }
+        if (status >= 500) {
+            return 'Server error. Check the Django terminal for the real error message.';
+        }
+        return 'Registration failed. Check your input and try again.';
+    };
+
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -53,18 +87,51 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 method: 'POST',
                 body: data,
             });
+<<<<<<< HEAD
+<<<<<<< HEAD
             const result = await res.json().catch(() => ({}));
             if (res.ok) {
                 setSuccess(result.message || 'Registration successful! Please check your email.');
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+
+            const text = await res.text();
+            let result = {};
+            try {
+                result = text ? JSON.parse(text) : {};
+            } catch {
+                result = {};
+            }
+
+            if (res.ok) {
+                setSuccess(result.detail || result.message || 'Registration successful! Please check your email.');
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 setForm({ username: '', email: '', password: '', confirm_password: '' });
                 setPicture(null);
                 setPreview(null);
             } else {
+<<<<<<< HEAD
+<<<<<<< HEAD
                 const msg = result.detail || result.message || JSON.stringify(result) || 'Registration failed.';
                 setError(msg);
             }
         } catch {
             setError('Network error.');
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+                setError(getErrorMessage(result, res.status));
+            }
+        } catch {
+            setError('Network error. Make sure Django backend is running on port 8000.');
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
         } finally {
             setLoading(false);
         }

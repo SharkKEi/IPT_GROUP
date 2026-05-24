@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 import secrets
 
 
@@ -15,14 +17,23 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
-    birthday   = models.DateField(null=True, blank=True)
+    token_expires_at = models.DateTimeField(null=True, blank=True)
+    birthday = models.DateField(null=True, blank=True)
     department = models.CharField(max_length=120, blank=True, default='')
-    specialty  = models.CharField(max_length=120, blank=True, default='')
+    specialty = models.CharField(max_length=120, blank=True, default='')
 
-    def generate_activation_token(self):
+    def generate_activation_token(self, expires_in_hours=24):
         self.activation_token = secrets.token_urlsafe(32)
-        self.save(update_fields=['activation_token'])
+        self.token_expires_at = timezone.now() + timedelta(hours=expires_in_hours)
+        self.save(update_fields=['activation_token', 'token_expires_at'])
         return self.activation_token
+
+    def is_token_valid(self):
+        if not self.activation_token:
+            return False
+        if self.token_expires_at and timezone.now() > self.token_expires_at:
+            return False
+        return True
 
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -51,7 +62,7 @@ class Section(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="sections")
     section_code = models.CharField(max_length=10)
     capacity = models.PositiveIntegerField()
-    schedule = models.CharField(max_length=100, blank=True, default='')  # ← NEW
+    schedule = models.CharField(max_length=100, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -81,7 +92,6 @@ class Enrollment(models.Model):
     def clean(self):
         if self.section_id and self.subject_id and self.section.subject_id != self.subject_id:
             raise ValidationError({"section": "Section must belong to the selected subject."})
-
         if self.section_id:
             current_enrollments = (
                 Enrollment.objects.filter(section_id=self.section_id)
@@ -97,4 +107,3 @@ class Enrollment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.student.full_name} -> {self.subject.subject_code} ({self.section.section_code})"
-

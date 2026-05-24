@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+<<<<<<< HEAD
     <title>School Portal Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -92,5 +94,30 @@
             </div>
         </div>
     </div>
+=======
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    {% if form.non_field_errors %}
+        <div>
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log in</button>
+    </form>
+<<<<<<< HEAD
+>>>>>>> 56b74d6 (Updated project code)
+=======
+>>>>>>> a00cc98 (Fix project errors and mobile app issues)
 </body>
 </html>
