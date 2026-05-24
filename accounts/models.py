@@ -15,6 +15,9 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
+    birthday   = models.DateField(null=True, blank=True)
+    department = models.CharField(max_length=120, blank=True, default='')
+    specialty  = models.CharField(max_length=120, blank=True, default='')
 
     def generate_activation_token(self):
         self.activation_token = secrets.token_urlsafe(32)

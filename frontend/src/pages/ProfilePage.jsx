@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { jsonFetch } from '../api/client';
 
-export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode, onToggleNight }) {
-    const navigate = useNavigate();
+export default function ProfilePage({ user, onProfileUpdate, nightMode }) {
+    const isDay = !nightMode;
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     const [editing, setEditing] = useState(false);
-    const [editForm, setEditForm] = useState({ first_name: '', last_name: '', email: '' });
+    const [editForm, setEditForm] = useState({
+        first_name: '',
+        last_name: '',
+        email: '',
+        birthday: '',
+        department: '',
+        specialty: '',
+    });
     const [newPicture, setNewPicture] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState('');
     const [saveSuccess, setSaveSuccess] = useState('');
 
     useEffect(() => {
@@ -27,6 +32,9 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
                     first_name: data.first_name || '',
                     last_name: data.last_name || '',
                     email: data.email || '',
+                    birthday: data.birthday || '',
+                    department: data.department || '',
+                    specialty: data.specialty || '',
                 });
             } catch {
                 setError('Network error.');
@@ -47,39 +55,30 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
 
     const handleSave = async () => {
         setSaving(true);
-        setSaveError('');
         setSaveSuccess('');
 
         const formData = new FormData();
         formData.append('first_name', editForm.first_name);
         formData.append('last_name', editForm.last_name);
         formData.append('email', editForm.email);
+        formData.append('birthday', editForm.birthday);
+        formData.append('department', editForm.department);
+        formData.append('specialty', editForm.specialty);
         if (newPicture) formData.append('profile_picture', newPicture);
 
         try {
-            const res = await jsonFetch('/accounts/api/me/', {
-                method: 'PATCH',
-                body: formData,
-            });
+            const res = await jsonFetch('/accounts/api/me/', { method: 'PATCH', body: formData });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                setSaveError(data.detail || 'Failed to save changes.');
-                return;
-            }
+            if (!res.ok) { setError(data.detail || 'Failed to save changes.'); return; }
+
             setProfile(data);
-            setEditForm({
-                first_name: data.first_name || '',
-                last_name: data.last_name || '',
-                email: data.email || '',
-            });
             setNewPicture(null);
             setPreviewUrl(null);
             setSaveSuccess('Profile updated successfully!');
             setEditing(false);
-            // Sync updated profile back up to App.jsx
             if (onProfileUpdate) onProfileUpdate(data);
         } catch {
-            setSaveError('Network error.');
+            setError('Network error.');
         } finally {
             setSaving(false);
         }
@@ -87,209 +86,289 @@ export default function ProfilePage({ user, onLogout, onProfileUpdate, nightMode
 
     const handleCancel = () => {
         setEditing(false);
-        setSaveError('');
         setNewPicture(null);
         setPreviewUrl(null);
         setEditForm({
             first_name: profile?.first_name || '',
             last_name: profile?.last_name || '',
             email: profile?.email || '',
+            birthday: profile?.birthday || '',
+            department: profile?.department || '',
+            specialty: profile?.specialty || '',
         });
+    };
+
+    /* ── Helpers ── */
+    const formatDate = (raw) => {
+        if (!raw) return '—';
+        const d = new Date(raw + 'T00:00:00'); // avoid timezone shift
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+
+    const calcAge = (raw) => {
+        if (!raw) return null;
+        const bday = new Date(raw + 'T00:00:00');
+        const today = new Date();
+        let age = today.getFullYear() - bday.getFullYear();
+        const m = today.getMonth() - bday.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
+        return age;
     };
 
     const initial = profile?.username?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || 'U';
     const avatarSrc = previewUrl || profile?.profile_picture || null;
+    const age = calcAge(profile?.birthday);
+
+    /* ── Theme ── */
+    const textH = isDay ? 'text-slate-800' : 'text-white';
+    const textS = isDay ? 'text-slate-500' : 'text-white/50';
+    const divider = isDay ? 'border-slate-200' : 'border-white/10';
+    const fieldLbl = `text-[10px] font-bold uppercase tracking-widest mb-1 ${textS}`;
+    const fieldVal = `text-base font-semibold ${textH}`;
+    const readonlyVal = isDay
+        ? 'w-full rounded-xl border border-slate-200 bg-slate-100/60 px-4 py-3 text-sm text-slate-400 cursor-not-allowed'
+        : 'w-full rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-white/30 cursor-not-allowed';
+    const inputCls = isDay
+        ? 'w-full rounded-xl border border-slate-200 bg-white/60 px-4 py-3 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-sky-400'
+        : 'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-amber-400';
+
+    if (loading) return <div className={`animate-pulse text-sm ${textS}`}>Loading profile data…</div>;
 
     return (
-        <div className="min-h-screen bg-animated">
-            <div className="relative z-10 px-6 py-10 lg:px-12">
-                <div className="max-w-xl mx-auto">
+        <div className={`glass-card ${isDay ? 'glass-day' : 'glass-night'} rounded-3xl p-8 lg:p-12 shadow-2xl flex flex-col md:flex-row gap-12 items-start max-w-5xl mx-auto`}>
 
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
-                    >
-                        ← Dashboard
-                    </button>
-
-                    {loading && <p className="text-white/50 text-center mt-20">Loading…</p>}
-                    {error && (
-                        <div className="mt-6 rounded-3xl bg-red-500/10 border border-red-400/50 px-6 py-4 text-sm text-red-100">
-                            {error}
-                        </div>
-                    )}
-
-                    {saveSuccess && !editing && (
-                        <div className="mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/50 px-5 py-3 text-sm text-emerald-100">
-                            ✓ {saveSuccess}
-                        </div>
-                    )}
-
-                    {profile && (
-                        <div className="rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-sm">
-
-                            {/* Avatar */}
-                            <div className="flex flex-col items-center text-center mb-8">
-                                <label className={`relative group ${editing ? 'cursor-pointer' : 'cursor-default'}`}>
-                                    {avatarSrc ? (
-                                        <img
-                                            src={avatarSrc}
-                                            alt="Profile"
-                                            className="h-24 w-24 rounded-full object-cover shadow-xl border-2 border-white/20"
-                                        />
-                                    ) : (
-                                        <div className="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-400 to-emerald-400 flex items-center justify-center text-4xl font-bold text-white shadow-xl">
-                                            {initial}
-                                        </div>
-                                    )}
-                                    {editing && (
-                                        <>
-                                            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                                            <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                                <span className="text-white text-xs font-semibold">Change</span>
-                                            </div>
-                                        </>
-                                    )}
-                                </label>
-                                {editing && newPicture && (
-                                    <p className="text-xs text-white/40 mt-2">{newPicture.name}</p>
-                                )}
-
-                                {!editing && (
-                                    <>
-                                        <h1 className="text-2xl font-bold text-white mt-4">
-                                            {profile.first_name || profile.last_name
-                                                ? `${profile.first_name} ${profile.last_name}`.trim()
-                                                : profile.username}
-                                        </h1>
-                                        <p className="text-white/50 text-sm mt-1">@{profile.username}</p>
-                                        {profile.is_staff && (
-                                            <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-purple-500/20 border border-purple-400/30 px-3 py-1 text-xs font-semibold text-purple-300">
-                                                Admin
-                                            </span>
-                                        )}
-                                    </>
-                                )}
+            {/* ── LEFT: Avatar + identity summary ── */}
+            <div className="w-full md:w-1/3 flex flex-col items-center text-center shrink-0">
+                <label className={`relative group ${editing ? 'cursor-pointer' : 'cursor-default'}`}>
+                    <div className="relative p-1.5 rounded-full bg-gradient-to-tr from-yellow-400 via-amber-500 to-yellow-600 shadow-[0_0_40px_rgba(245,158,11,0.4)]">
+                        {avatarSrc ? (
+                            <img src={avatarSrc} alt="Profile"
+                                className={`h-48 w-48 rounded-full object-cover border-4 ${isDay ? 'border-white' : 'border-[#0d1f3c]'}`} />
+                        ) : (
+                            <div className={`h-48 w-48 rounded-full flex items-center justify-center text-7xl font-extrabold text-slate-400 border-4
+                                ${isDay ? 'bg-gradient-to-br from-slate-200 to-slate-300 border-white' : 'bg-gradient-to-br from-slate-700 to-slate-800 border-[#0d1f3c]'}`}>
+                                {initial}
                             </div>
-
-                            {/* ── VIEW MODE ── */}
-                            {!editing && (
-                                <>
-                                    <div className="space-y-3">
-                                        {[
-                                            { label: 'Username', value: profile.username },
-                                            { label: 'Email', value: profile.email || '—' },
-                                            { label: 'First name', value: profile.first_name || '—' },
-                                            { label: 'Last name', value: profile.last_name || '—' },
-                                            {
-                                              label: 'Role',
-                                              value: { admin: 'Administrator', staff: 'Staff', user: 'User' }[
-                                                profile.role || (profile.is_staff ? 'admin' : 'user')
-                                              ] || 'User',
-                                            },
-                                            {
-                                                label: 'Date joined',
-                                                value: new Date(profile.date_joined).toLocaleDateString('en-US', {
-                                                    year: 'numeric', month: 'long', day: 'numeric',
-                                                }),
-                                            },
-                                            {
-                                                label: 'Last login',
-                                                value: profile.last_login
-                                                    ? new Date(profile.last_login).toLocaleString('en-US', {
-                                                        dateStyle: 'medium', timeStyle: 'short',
-                                                    })
-                                                    : '—',
-                                            },
-                                        ].map(({ label, value }) => (
-                                            <div
-                                                key={label}
-                                                className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-5 py-3"
-                                            >
-                                                <span className="text-xs font-semibold text-white/40 uppercase tracking-widest">{label}</span>
-                                                <span className="text-sm text-white font-medium">{value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        onClick={() => { setEditing(true); setSaveSuccess(''); }}
-                                        className="mt-6 w-full rounded-2xl border border-blue-400/30 bg-blue-500/10 py-3 text-sm font-semibold text-blue-300 transition hover:bg-blue-500/20"
-                                    >
-                                        ✏ Edit Profile
-                                    </button>
-
-                                    <button
-                                        onClick={onLogout}
-                                        className="mt-3 w-full rounded-2xl border border-red-400/30 bg-red-500/10 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
-                                    >
-                                        Log out
-                                    </button>
-                                </>
-                            )}
-
-                            {/* ── EDIT MODE ── */}
-                            {editing && (
-                                <div className="space-y-4">
-                                    {saveError && (
-                                        <div className="rounded-2xl bg-red-500/10 border border-red-400/50 px-4 py-3 text-sm text-red-100">
-                                            {saveError}
-                                        </div>
-                                    )}
-
-                                    {[
-                                        { label: 'First name', key: 'first_name', placeholder: 'Enter first name' },
-                                        { label: 'Last name', key: 'last_name', placeholder: 'Enter last name' },
-                                        { label: 'Email', key: 'email', placeholder: 'Enter email', type: 'email' },
-                                    ].map(({ label, key, placeholder, type = 'text' }) => (
-                                        <div key={key}>
-                                            <label className="text-xs font-semibold text-white/40 uppercase tracking-widest">{label}</label>
-                                            <input
-                                                type={type}
-                                                value={editForm[key]}
-                                                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                                                placeholder={placeholder}
-                                                className="mt-2 w-full rounded-2xl bg-white/10 px-4 py-3 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
-                                                disabled={saving}
-                                            />
-                                        </div>
-                                    ))}
-
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-white/40 uppercase tracking-widest">Username</span>
-                                        <span className="text-sm text-white/40">{profile.username} (cannot change)</span>
-                                    </div>
-
-                                    <div className="flex gap-3 mt-2">
-                                        <button
-                                            onClick={handleCancel}
-                                            disabled={saving}
-                                            className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            onClick={handleSave}
-                                            disabled={saving}
-                                            className="flex-1 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
-                                        >
-                                            {saving ? 'Saving…' : 'Save Changes'}
-                                        </button>
-                                    </div>
+                        )}
+                        {editing && (
+                            <>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                <div className="absolute inset-1.5 rounded-full bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                    <span className="text-3xl mb-2">📷</span>
+                                    <span className="text-white text-xs font-bold uppercase tracking-widest">Change Photo</span>
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                            </>
+                        )}
+                    </div>
+                </label>
+
+                <h2 className={`mt-6 text-3xl font-extrabold tracking-tight ${textH}`}>{profile?.username}</h2>
+
+                {/* Role badge */}
+                <span className={`mt-2 inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
+                    ${profile?.role === 'admin' || profile?.is_staff ? 'bg-amber-400/20 text-amber-500' : 'bg-sky-400/20 text-sky-500'}`}>
+                    {profile?.role || (profile?.is_staff ? 'Admin' : 'User')}
+                </span>
+
+                {/* Department + Specialty chips */}
+                {(profile?.department || profile?.specialty) && (
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                        {profile?.department && (
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold
+                                ${isDay ? 'bg-sky-100 text-sky-700' : 'bg-sky-500/15 text-sky-300'}`}>
+                                🏛 {profile.department}
+                            </span>
+                        )}
+                        {profile?.specialty && (
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold
+                                ${isDay ? 'bg-violet-100 text-violet-700' : 'bg-violet-500/15 text-violet-300'}`}>
+                                ⭐ {profile.specialty}
+                            </span>
+                        )}
+                    </div>
+                )}
+
+                {/* Age display if birthday is set */}
+                {age !== null && (
+                    <p className={`mt-3 text-sm ${textS}`}>
+                        {age} years old
+                    </p>
+                )}
             </div>
 
-            <button
-                onClick={onToggleNight}
-                className="fixed bottom-6 right-6 z-50 rounded-full border border-white/20 bg-white/10 p-3 text-xl shadow-xl backdrop-blur transition hover:bg-white/20"
-                title="Toggle night mode"
-            >
-                {nightMode ? '☀️' : '🌙'}
-            </button>
+            {/* ── RIGHT: Info / Edit form ── */}
+            <div className="flex-1 w-full">
+                <div className={`flex items-center justify-between mb-8 border-b pb-4 ${divider}`}>
+                    <div>
+                        <h3 className={`text-2xl font-bold ${textH}`}>{editing ? 'Edit Profile' : 'Personal Information'}</h3>
+                        <p className={`text-sm mt-1 ${textS}`}>
+                            {editing ? 'Update your details, photo, and academic info.' : 'Your account details and academic profile.'}
+                        </p>
+                    </div>
+                    {!editing && (
+                        <button onClick={() => { setEditing(true); setSaveSuccess(''); }}
+                            className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-sm font-bold transition shadow-md">
+                            Edit Profile
+                        </button>
+                    )}
+                </div>
+
+                {error && (
+                    <div className="mb-6 p-4 rounded-xl bg-red-500/10 text-red-500 text-sm font-bold">{error}</div>
+                )}
+                {saveSuccess && !editing && (
+                    <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 text-emerald-500 text-sm font-bold">✓ {saveSuccess}</div>
+                )}
+
+                {/* ── VIEW MODE ── */}
+                {!editing ? (
+                    <div className="space-y-7">
+                        {/* Account */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>
+                                Account
+                            </p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <p className={fieldLbl}>Username</p>
+                                    <p className={fieldVal}>@{profile?.username || '—'}</p>
+                                </div>
+                                <div>
+                                    <p className={fieldLbl}>Email Address</p>
+                                    <p className={fieldVal}>{profile?.email || '—'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`border-t ${divider}`} />
+
+                        {/* Personal */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>
+                                Personal
+                            </p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <p className={fieldLbl}>First Name</p>
+                                    <p className={fieldVal}>{profile?.first_name || '—'}</p>
+                                </div>
+                                <div>
+                                    <p className={fieldLbl}>Last Name</p>
+                                    <p className={fieldVal}>{profile?.last_name || '—'}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className={fieldLbl}>Birthday</p>
+                                    <p className={fieldVal}>{formatDate(profile?.birthday)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`border-t ${divider}`} />
+
+                        {/* Academic */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>
+                                Academic
+                            </p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <p className={fieldLbl}>Department</p>
+                                    <p className={fieldVal}>{profile?.department || '—'}</p>
+                                </div>
+                                <div>
+                                    <p className={fieldLbl}>Specialty / Major</p>
+                                    <p className={fieldVal}>{profile?.specialty || '—'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                ) : (
+                    /* ── EDIT MODE ── */
+                    <div className="space-y-6">
+
+                        {/* Account — username is read-only */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>Account</p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>Username <span className={`normal-case tracking-normal ${textS}`}>(cannot change)</span></label>
+                                    <input type="text" value={profile?.username || ''} disabled className={readonlyVal} />
+                                </div>
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>Email Address</label>
+                                    <input type="email" value={editForm.email}
+                                        onChange={e => setEditForm({ ...editForm, email: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`border-t ${divider}`} />
+
+                        {/* Personal */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>Personal</p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>First Name</label>
+                                    <input type="text" value={editForm.first_name}
+                                        onChange={e => setEditForm({ ...editForm, first_name: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>Last Name</label>
+                                    <input type="text" value={editForm.last_name}
+                                        onChange={e => setEditForm({ ...editForm, last_name: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                                <div className="col-span-2">
+                                    <label className={`block ${fieldLbl}`}>Birthday</label>
+                                    <input type="date" value={editForm.birthday}
+                                        onChange={e => setEditForm({ ...editForm, birthday: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`border-t ${divider}`} />
+
+                        {/* Academic */}
+                        <div>
+                            <p className={`text-[11px] font-bold uppercase tracking-widest mb-3 ${isDay ? 'text-slate-400' : 'text-white/30'}`}>Academic</p>
+                            <div className="grid grid-cols-2 gap-5">
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>Department</label>
+                                    <input type="text" placeholder="e.g. College of Engineering"
+                                        value={editForm.department}
+                                        onChange={e => setEditForm({ ...editForm, department: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                                <div>
+                                    <label className={`block ${fieldLbl}`}>Specialty / Major</label>
+                                    <input type="text" placeholder="e.g. Computer Science"
+                                        value={editForm.specialty}
+                                        onChange={e => setEditForm({ ...editForm, specialty: e.target.value })}
+                                        className={inputCls} disabled={saving} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className={`flex gap-3 pt-4 mt-2 border-t ${divider}`}>
+                            <button onClick={handleCancel} disabled={saving}
+                                className={`px-6 py-3 rounded-xl text-sm font-bold border transition
+                                    ${isDay ? 'border-slate-200 hover:bg-slate-50 text-slate-600' : 'border-white/10 hover:bg-white/5 text-white'}`}>
+                                Cancel
+                            </button>
+                            <button onClick={handleSave} disabled={saving}
+                                className="px-8 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold transition shadow-md">
+                                {saving ? 'Saving…' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

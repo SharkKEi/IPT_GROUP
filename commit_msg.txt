@@ -1,0 +1,58 @@
+﻿feat: major UI overhaul, notifications, role-based access, and UX improvements
+
+feat(theme): complete UI theme overhaul across all pages
+- Replaced old theme with new glass-card day/night system on all pages
+- Added DashboardShell as universal layout wrapper with shared sidebar,
+  topbar, and page transition animations (fade + slide via framer-motion)
+- Added per-page contextual subtitles in the topbar
+- Implemented smooth page transitions via AnimatePresence + motion.div
+  keyed to location.pathname
+
+feat(notifications): functional notification bell with persistence
+- Notification bell now fetches live data (enrollments, sections, students)
+- Unread state persists across navigation using localStorage
+- Badge shows actual unread count instead of just a dot
+- Auto-polls every 30 seconds for new data
+- Student count changes (add/remove) now trigger new notifications
+
+feat(role-access): role-based UI filtering
+- Sidebar nav items filtered by role (admin/staff/user)
+- Dashboard Quick Actions now filtered by role using canManageSchool()
+- Users with user role only see Summary and profile-related actions
+
+feat(students): enhanced StudentsPage
+- Added filter pills: All / Enrolled / Not Enrolled
+- Added sort options: Student Number / Name A-Z / Most Enrolled
+- Enrollment count shown as badge via annotated API queryset
+
+feat(subjects): enhanced SubjectsPage
+- Added filter pills by units dynamic from data
+- Added filter pills: Has Sections / No Sections
+- Added sort options: Code / Title / Most Units / Most Sections
+- Section count shown as badge via annotated API queryset
+
+feat(sections): new SectionsPage with full CRUD
+- Added subject filter pills and capacity filter: All / Has Space / Full
+- Added sort options: By Subject / Section Code / Capacity / Availability
+- Live capacity bars showing enrolled/capacity with color coding
+
+feat(enrollments): merged old and new EnrollmentsPage
+- Filter pills by subject and section with sort options
+- Restored section browser panel with capacity bars and auto-assign preview
+- Restored drop confirmation modal with confirm/cancel flow
+- Enroll modal is now two-panel: form left, section browser right
+- Drop button on each row with confirm modal
+
+feat(summary): EnrollmentSummaryPage roster viewer
+- Added View Roster button on each subject card and Top Enrolled panel
+- Roster modal shows section tabs, metadata, and full student list
+- Fixed modal backdrop using createPortal to escape DOM clipping
+
+feat(api): backend annotation fixes
+- StudentSerializer: added enrollment_count via Count enrollments
+- SubjectSerializer: added section_count via Count sections
+- Annotated querysets in StudentListCreateAPIView and SubjectListCreateAPIView
+
+fix(admin): fixed role update endpoint URL to /accounts/api/users/id/role/
+
+chore(git): updated .gitignore to exclude .venv312/ .history/ and media/profile_pictures/*

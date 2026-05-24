@@ -262,8 +262,12 @@ class ResendActivationAPIView(APIView):
 class StudentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [CanManageSchoolData]
     authentication_classes = API_AUTH
-    queryset = Student.objects.all().order_by("student_number")
     serializer_class = StudentSerializer
+
+    def get_queryset(self):
+        return Student.objects.annotate(
+            enrollment_count=Count("enrollments")
+        ).order_by("student_number")
 
 
 class StudentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -278,8 +282,12 @@ class StudentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 class SubjectListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [CanManageSchoolData]
     authentication_classes = API_AUTH
-    queryset = Subject.objects.all().order_by("subject_code")
     serializer_class = SubjectSerializer
+
+    def get_queryset(self):
+        return Subject.objects.annotate(
+            section_count=Count("sections")
+        ).order_by("subject_code")
 
 
 class SubjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

@@ -1,11 +1,13 @@
-import { lazy, useEffect, useState } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import Chatbot from './components/Chatbot.jsx'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import ProtectedLayout from './components/ProtectedLayout.jsx'
+import DashboardShell from './components/DashboardShell.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import { isAdmin } from './api/client.js'
 import RegisterPage from './pages/RegisterPage.jsx'
 import ActivatePage from './pages/ActivatePage.jsx'
+import Chatbot from './components/Chatbot.jsx'
 
 const Dashboard = lazy(() => import('./components/Dashboard.jsx'))
 const EnrollmentSummaryPage = lazy(() => import('./pages/EnrollmentSummaryPage.jsx'))
@@ -16,54 +18,58 @@ const StudentsPage = lazy(() => import('./pages/StudentsPage.jsx'))
 const SubjectsPage = lazy(() => import('./pages/SubjectsPage.jsx'))
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage.jsx'))
 
+function PageLoader() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[#0a1628]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex gap-2">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="w-3 h-3 rounded-full bg-sky-400" style={{ animation: 'bounce 0.8s ease-in-out infinite', animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+        <p className="text-white/40 text-sm font-medium tracking-widest uppercase">Loading…</p>
+      </div>
+    </div>
+  )
+}
+
 function App() {
-  const { user, isLoggedIn, login, logout, setUser } = useAuth();
-  const [formData, setFormData] = useState({ username: '', password: '' });
-  const [remember, setRemember] = useState(true);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [nightMode, setNightMode] = useState(() => {
-    return localStorage.getItem('nightMode') === 'true';
-  });
-  const navigate = useNavigate();
+  const { user, isLoggedIn, login, logout, setUser } = useAuth()
+  const [formData, setFormData] = useState({ username: '', password: '' })
+  const [remember, setRemember] = useState(true)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [nightMode, setNightMode] = useState(() => localStorage.getItem('nightMode') === 'true')
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (nightMode) {
-      root.classList.add('night');
-    } else {
-      root.classList.remove('night');
-    }
-    localStorage.setItem('nightMode', nightMode);
-  }, [nightMode]);
+    const root = document.documentElement
+    nightMode ? root.classList.add('night') : root.classList.remove('night')
+    localStorage.setItem('nightMode', nightMode)
+  }, [nightMode])
 
-  useEffect(() => {
-    document.title = 'School Portal';
-  }, []);
+  useEffect(() => { document.title = 'School Portal' }, [])
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+    e.preventDefault()
+    setError(''); setLoading(true)
     try {
-      await login({ ...formData, remember });
-      setError('');
-      navigate('/dashboard');
+      await login({ ...formData, remember })
+      setError(''); navigate('/dashboard')
     } catch (err) {
-      setError(err.data?.detail || err.message || 'Invalid credentials');
+      setError(err.data?.detail || err.message || 'Invalid credentials')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleLogout = async () => {
-    await logout();
-    setFormData({ username: '', password: '' });
-    setError('');
-    setRemember(true);
-    navigate('/');
-  };
+    await logout()
+    setFormData({ username: '', password: '' }); setError(''); setRemember(true)
+    navigate('/')
+  }
 
   const handleProfileUpdate = (updatedData) => {
     setUser(prev => ({
@@ -73,8 +79,8 @@ function App() {
       first_name: updatedData.first_name,
       last_name: updatedData.last_name,
       profile_picture: updatedData.profile_picture || null,
-    }));
-  };
+    }))
+  }
 
   const EyeIcon = ({ open }) => open ? (
     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +91,15 @@ function App() {
     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
     </svg>
-  );
+  )
+
+  // Common props shared to pages
+  const shellProps = {
+    user,
+    nightMode,
+    onToggleNight: () => setNightMode(n => !n),
+    onLogout: handleLogout
+  }
 
   const loginPage = (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39]">
@@ -146,12 +160,9 @@ function App() {
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-12 pr-12 text-white placeholder:text-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
                     required disabled={loading} />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(s => !s)}
+                  <button type="button" onClick={() => setShowPassword(s => !s)}
                     className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition"
-                    tabIndex={-1}
-                  >
+                    tabIndex={-1}>
                     <EyeIcon open={showPassword} />
                   </button>
                 </div>
@@ -173,7 +184,8 @@ function App() {
 
               <p className="text-center text-sm text-white/60">
                 Don't have an account?{' '}
-                <button type="button" onClick={() => navigate('/register')} className="font-semibold text-white/80 hover:text-white">
+                <button type="button" onClick={() => navigate('/register')}
+                  className="font-semibold text-white/80 hover:text-white">
                   Register here
                 </button>
               </p>
@@ -182,36 +194,41 @@ function App() {
         </div>
       </div>
     </div>
-  );
-
-  const shellProps = {
-    nightMode,
-    onToggleNight: () => setNightMode((n) => !n),
-  };
+  )
 
   return (
     <>
-      {isLoggedIn && <Chatbot />}
-      <Routes>
-        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
-        <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
-        <Route path="/activate" element={<ActivatePage />} />
-        <Route element={<ProtectedLayout />}>
-          <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} {...shellProps} />} />
-          <Route path="/profile" element={<ProfilePage user={user} onLogout={handleLogout} onProfileUpdate={handleProfileUpdate} {...shellProps} />} />
-          <Route path="/students" element={<StudentsPage {...shellProps} />} />
-          <Route path="/subjects" element={<SubjectsPage {...shellProps} />} />
-          <Route path="/sections" element={<SectionsPage {...shellProps} />} />
-          <Route path="/enrollments" element={<EnrollmentsPage {...shellProps} />} />
-          <Route path="/summary" element={<EnrollmentSummaryPage {...shellProps} />} />
-          <Route
-            path="/users"
-            element={isAdmin(user?.role) ? <AdminUsersPage /> : <Navigate to="/dashboard" replace />}
-          />
-        </Route>
-      </Routes>
+      {isLoggedIn && <Chatbot isDay={!nightMode} />}
+
+      <AnimatePresence mode="wait">
+        <Suspense fallback={<PageLoader />}>
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
+            <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
+            <Route path="/activate" element={<ActivatePage />} />
+
+            <Route element={<ProtectedLayout />}>
+
+              {/* OLD DASHBOARD: Stays exactly as it was, outside the Shell */}
+              <Route path="/dashboard" element={<Dashboard {...shellProps} />} />
+
+              {/* NEW PAGES: Wrapped inside the DashboardShell */}
+              <Route element={<DashboardShell {...shellProps} />}>
+                <Route path="/profile" element={<ProfilePage {...shellProps} onProfileUpdate={handleProfileUpdate} />} />
+                <Route path="/students" element={<StudentsPage {...shellProps} />} />
+                <Route path="/subjects" element={<SubjectsPage {...shellProps} />} />
+                <Route path="/sections" element={<SectionsPage {...shellProps} />} />
+                <Route path="/enrollments" element={<EnrollmentsPage {...shellProps} />} />
+                <Route path="/summary" element={<EnrollmentSummaryPage {...shellProps} />} />
+                <Route path="/users" element={isAdmin(user?.role) ? <AdminUsersPage /> : <Navigate to="/dashboard" replace />} />
+              </Route>
+
+            </Route>
+          </Routes>
+        </Suspense>
+      </AnimatePresence>
     </>
-  );
+  )
 }
 
-export default App;
+export default App

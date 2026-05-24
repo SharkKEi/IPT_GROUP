@@ -80,16 +80,20 @@ class ChatMessageSerializer(serializers.Serializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    enrollment_count = serializers.IntegerField(read_only=True, default=0)
+
     class Meta:
         model = Student
-        fields = ["id", "student_number", "full_name", "created_at"]
+        fields = ["id", "student_number", "full_name", "created_at", "enrollment_count"]
         read_only_fields = ["id", "created_at"]
 
 
 class SubjectSerializer(serializers.ModelSerializer):
+    section_count = serializers.IntegerField(read_only=True, default=0)
+
     class Meta:
         model = Subject
-        fields = ["id", "subject_code", "title", "units", "created_at"]
+        fields = ["id", "subject_code", "title", "units", "created_at", "section_count"]
         read_only_fields = ["id", "created_at"]
 
 
