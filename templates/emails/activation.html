@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Account</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .body {
+            padding: 30px;
+            color: #374151;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .btn-wrap {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .footer {
+            padding: 20px 30px;
+            background: #f9fafb;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 School Portal</h1>
+        </div>
+        <div class="body">
+            <h2>Activate your account</h2>
+            <p>Hello {{ username }},</p>
+            <p>Please click the link below to activate your account:</p>
+            <div class="btn-wrap">
+                <a href="{{ activation_url }}" class="btn">Activate Account</a>
+            </div>
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; font-size: 12px; color: #6b7280;">{{ activation_url }}</p>
+            <p style="margin-top: 20px; font-size: 13px; color: #6b7280;">If you didn't request this, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+            &copy; School Portal. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
+

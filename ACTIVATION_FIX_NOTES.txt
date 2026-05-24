@@ -1,0 +1,16 @@
+Activation fix notes:
+
+1. New email activation links now open Django directly:
+   http://localhost:8000/accounts/activate/?uid=...&token=...
+
+   This avoids the React blank screen problem and verifies the account directly.
+
+2. The old React activation page still exists as a fallback and now calls:
+   http://localhost:8000/accounts/api/activate/?uid=...&token=...
+
+3. If you already have an old email link using localhost:5173, you can manually change it:
+   from: http://localhost:5173/activate?uid=3&token=TOKEN
+   to:   http://localhost:8000/accounts/activate/?uid=3&token=TOKEN
+
+4. Make sure Django is running before clicking activation links:
+   py manage.py runserver 0.0.0.0:8000
