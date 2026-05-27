@@ -6,45 +6,58 @@
     <title>School Portal Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#1b0d3a] via-[#2b136c] to-[#1b0d3a] overflow-hidden">
+
+<body class="min-h-screen bg-gradient-to-br from-[#1b0d3a] via-[#2b136c] to-[#1b0d3a]">
+
+    <!-- Background Effects -->
     <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center opacity-20" />
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]"></div>
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center opacity-20"></div>
+
+        <!-- Floating particles -->
         <div class="pointer-events-none absolute inset-0">
-            <span class="absolute top-10 left-12 h-1 w-1 rounded-full bg-white/70 animate-pulse" />
-            <span class="absolute top-24 left-60 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-200" />
-            <span class="absolute top-32 left-28 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-400" />
-            <span class="absolute top-16 right-20 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-300" />
-            <span class="absolute top-40 right-10 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-500" />
-            <span class="absolute top-56 left-16 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-600" />
-            <span class="absolute top-64 right-32 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-800" />
+            <span class="absolute top-10 left-12 h-1 w-1 rounded-full bg-white/70 animate-pulse"></span>
+            <span class="absolute top-24 left-60 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-200"></span>
+            <span class="absolute top-32 left-28 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-400"></span>
+            <span class="absolute top-16 right-20 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-300"></span>
+            <span class="absolute top-40 right-10 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-500"></span>
+            <span class="absolute top-56 left-16 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-600"></span>
+            <span class="absolute top-64 right-32 h-1 w-1 rounded-full bg-white/70 animate-pulse delay-800"></span>
         </div>
     </div>
 
-    <div class="relative flex min-h-screen items-center justify-center px-4 py-12">
+    <!-- Centered Container -->
+    <div class="min-h-screen flex items-center justify-center px-4 py-10">
         <div class="relative w-full max-w-md">
-            <div class="absolute inset-0 bg-white/5 rounded-3xl" />
-            <div class="relative z-10 rounded-3xl bg-black/30 border border-white/20 shadow-2xl">
+
+            <!-- Glow Layer -->
+            <div class="absolute inset-0 bg-white/5 rounded-3xl"></div>
+
+            <!-- Card -->
+            <div class="relative z-10 rounded-3xl bg-black/30 border border-white/20 shadow-2xl backdrop-blur-xl">
                 <div class="p-10">
+
                     <h1 class="text-4xl font-bold text-white text-center mb-6">Login</h1>
 
                     <form method="post" class="space-y-6">
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
-                            <div class="rounded-2xl bg-red-500/10 border border-red-400/50 px-6 py-4 text-sm text-red-100">
-                                {% for error in form.non_field_errors %}
-                                    <div>{{ error }}</div>
-                                {% endfor %}
-                            </div>
+                        <div class="rounded-2xl bg-red-500/10 border border-red-400/50 px-6 py-4 text-sm text-red-100">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
                         {% endif %}
 
-                        <div class="relative">
-                            <label for="id_username" class="block text-sm font-semibold text-white/70 mb-2">Username</label>
+                        <!-- Username -->
+                        <div>
+                            <label class="block text-sm font-semibold text-white/70 mb-2">Username</label>
                             <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/60">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-white/60">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99.722 7.121 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99.722 7.121 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0zm6 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                 </span>
                                 {{ form.username }}
@@ -54,13 +67,16 @@
                             {% endif %}
                         </div>
 
-                        <div class="relative">
-                            <label for="id_password" class="block text-sm font-semibold text-white/70 mb-2">Password</label>
+                        <!-- Password -->
+                        <div>
+                            <label class="block text-sm font-semibold text-white/70 mb-2">Password</label>
                             <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/60">
+                                <span class="absolute inset-y-0 left-4 flex items-center text-white/60">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3V5a3 3 0 10-6 0v3c0 1.657 1.343 3 3 3z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 11c1.657 0 3-1.343 3-3V5a3 3 0 10-6 0v3c0 1.657 1.343 3 3 3z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 11h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"/>
                                     </svg>
                                 </span>
                                 {{ form.password }}
@@ -70,6 +86,7 @@
                             {% endif %}
                         </div>
 
+                        <!-- Remember -->
                         <div class="flex items-center justify-between text-sm text-white/70">
                             <label class="inline-flex items-center gap-2">
                                 {{ form.remember }}
@@ -78,44 +95,27 @@
                             <a href="#" class="font-semibold text-white/90 hover:text-white">Forgot password?</a>
                         </div>
 
-                        <button type="submit" class="w-full rounded-2xl bg-white/10 py-4 text-lg font-semibold text-white shadow-lg shadow-black/20 hover:bg-white/20 transition">
+                        <!-- Button -->
+                        <button type="submit"
+                            class="w-full rounded-2xl bg-white/10 py-4 text-lg font-semibold text-white shadow-lg shadow-black/20 hover:bg-white/20 transition">
                             Login
                         </button>
 
                         <p class="text-center text-sm text-white/60">
-                            Don't have an account? <span class="font-semibold text-white/80">Contact your administrator</span>
+                            Don't have an account?
+                            <span class="font-semibold text-white/80">Contact your administrator</span>
                         </p>
                     </form>
 
-                    <p class="mt-10 text-center text-xs text-white/40">© {% now "Y" %} School Portal</p>
+                    <p class="mt-10 text-center text-xs text-white/40">
+                        © {% now "Y" %} School Portal
+                    </p>
+
                 </div>
             </div>
         </div>
     </div>
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
-    <title>Login</title>
-</head>
-<body>
-    <h1>Login</h1>
 
-    {% if form.non_field_errors %}
-        <div>
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Log in</button>
-    </form>
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
 </body>
 </html>
+
