@@ -14,26 +14,35 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-# Load environment variables from project-level .env
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from the project-level .env file no matter where
+# manage.py is executed from. This is important for Gmail SMTP settings.
 try:
     from dotenv import load_dotenv
-
     load_dotenv(BASE_DIR / '.env')
 except ImportError:
     pass
 
 # Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
     'django-insecure-v0z+sy!sktjtmo$wwwr3s_y3))pi&3+2sh&r)kn)$*g-p*ny^&',
 )
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
+# During local development, allow all hosts. In production, set this to a safe list.
 ALLOWED_HOSTS = ['*']
 
+
 # Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -80,7 +89,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'school_project.wsgi.application'
 
-# Database (default sqlite)
+
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -88,7 +100,10 @@ DATABASES = {
     }
 }
 
+
 # Password validation
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -104,10 +119,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
+
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
 # Auth settings
@@ -115,10 +136,13 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Static files
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
 STATIC_URL = 'static/'
 
-# Media files
+# Media files (user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -132,9 +156,12 @@ if os.environ.get('USE_CLOUDINARY', '').lower() in ('1', 'true', 'yes'):
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Logging
+# ── Logging ──────────────────────────────────────────────────────────────────
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 
@@ -170,7 +197,6 @@ LOGGING = {
     },
 }
 
-# REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -191,50 +217,57 @@ SIMPLE_JWT = {
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
+# ── CORS & CSRF ──────────────────────────────────────────────────────────
 TRUSTED_HOSTS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5174',
-    'http://localhost:8081',
-    'http://127.0.0.1:8081',
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
+    "https://ipt-group-mission-fbcs.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = TRUSTED_HOSTS
+
+# SPA on Vite (proxied to Django): allow cookie on localhost
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 
-# Email
+# ── Email Configuration ───────────────────────────────────────────────────────
+# Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
+# IMPORTANT: EMAIL_HOST_PASSWORD must be a Google App Password, not your normal Gmail password.
+
 EMAIL_BACKEND = os.environ.get(
     'EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend',
+    'django.core.mail.backends.smtp.EmailBackend',
 )
-
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true', 'yes')
-
 EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 30))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '').strip()
-
 DEFAULT_FROM_EMAIL = (os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@schoolportal.local').strip()
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# Set REQUIRE_EMAIL_VERIFICATION=true in production to enforce activation before login.
 REQUIRE_EMAIL_VERIFICATION = os.environ.get(
     'REQUIRE_EMAIL_VERIFICATION',
     'false' if DEBUG else 'true',
 ).lower() in ('1', 'true', 'yes')
 
+# Disable django-ratelimit during local development so repeated testing does not
+# return blank 403/429 HTML responses to the React signup page.
 RATELIMIT_ENABLE = os.environ.get(
     'RATELIMIT_ENABLE',
     'False' if DEBUG else 'True',
 ).lower() in ('1', 'true', 'yes')
-

@@ -2,101 +2,87 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function ActivatePage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [status, setStatus] = useState('loading');
+    const [message, setMessage] = useState('');
+    const activationStarted = useRef(false);
 
-  const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('');
+    useEffect(() => {
+        if (activationStarted.current) return;
+        activationStarted.current = true;
 
-  const activationStarted = useRef(false);
+        const token = searchParams.get('token');
+        const uid = searchParams.get('uid');
 
-  useEffect(() => {
-    // React StrictMode runs effects twice in local development.
-    // Guard to avoid double-activating.
-    if (activationStarted.current) return;
-    activationStarted.current = true;
-
-    const token = searchParams.get('token');
-    const uid = searchParams.get('uid');
-
-    if (!token) {
-      setStatus('error');
-      setMessage('Activation token is missing.');
-      return;
-    }
-
-    const activate = async () => {
-      try {
-        const query = new URLSearchParams({ token });
-        if (uid) query.set('uid', uid);
-
-        const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
-        const data = await res.json().catch(() => ({}));
-
-        if (res.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Account activated successfully!');
-        } else {
-          setStatus('error');
-          setMessage(data.detail || 'Activation failed. The token may be invalid or expired.');
+        if (!token) {
+            setStatus('error');
+            setMessage('Activation token is missing.');
+            return;
         }
-      } catch {
-        setStatus('error');
-        setMessage('Network error. Please try again later.');
-      }
-    };
 
-    activate();
-  }, [searchParams]);
+        const activate = async () => {
+            try {
+                const query = new URLSearchParams({ token });
+                if (uid) query.set('uid', uid);
+                const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    setStatus('success');
+                    setMessage(data.message || 'Account activated successfully!');
+                } else {
+                    setStatus('error');
+                    setMessage(data.detail || 'Activation failed. The token may be invalid or expired.');
+                }
+            } catch {
+                setStatus('error');
+                setMessage('Network error. Please try again later.');
+            }
+        };
 
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39] flex items-center justify-center px-4">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
-      </div>
+        activate();
+    }, [searchParams]);
 
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-10 shadow-2xl backdrop-blur-sm text-center">
-        {status === 'loading' && (
-          <>
-            <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-blue-400" />
-            <h1 className="text-2xl font-bold text-white">Activating…</h1>
-            <p className="mt-2 text-sm text-white/60">Please wait while we verify your account.</p>
-          </>
-        )}
-
-        {status === 'success' && (
-          <>
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl text-emerald-300 border border-emerald-400/30">
-              ✓
+    return (
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39] flex items-center justify-center px-4">
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
             </div>
-            <h1 className="text-2xl font-bold text-white">Activated!</h1>
-            <p className="mt-2 text-sm text-white/60">{message}</p>
-            <button
-              onClick={() => navigate('/')}
-              className="mt-8 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-xl transition hover:brightness-110"
-            >
-              Go to Login
-            </button>
-          </>
-        )}
-
-        {status === 'error' && (
-          <>
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-3xl text-red-300 border border-red-400/30">
-              ✗
+            <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-10 shadow-2xl backdrop-blur-sm text-center">
+                {status === 'loading' && (
+                    <>
+                        <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-blue-400" />
+                        <h1 className="text-2xl font-bold text-white">Activating…</h1>
+                        <p className="mt-2 text-sm text-white/60">Please wait while we verify your account.</p>
+                    </>
+                )}
+                {status === 'success' && (
+                    <>
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl text-emerald-300 border border-emerald-400/30">
+                            ✓
+                        </div>
+                        <h1 className="text-2xl font-bold text-white">Activated!</h1>
+                        <p className="mt-2 text-sm text-white/60">{message}</p>
+                        <button onClick={() => navigate('/')}
+                            className="mt-8 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-xl transition hover:brightness-110">
+                            Go to Login
+                        </button>
+                    </>
+                )}
+                {status === 'error' && (
+                    <>
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-3xl text-red-300 border border-red-400/30">
+                            ✗
+                        </div>
+                        <h1 className="text-2xl font-bold text-white">Activation Failed</h1>
+                        <p className="mt-2 text-sm text-white/60">{message}</p>
+                        <button onClick={() => navigate('/')}
+                            className="mt-8 w-full rounded-2xl border border-white/20 bg-white/10 py-3 text-sm font-semibold text-white transition hover:bg-white/20">
+                            Back to Login
+                        </button>
+                    </>
+                )}
             </div>
-            <h1 className="text-2xl font-bold text-white">Activation Failed</h1>
-            <p className="mt-2 text-sm text-white/60">{message}</p>
-            <button
-              onClick={() => navigate('/')}
-              className="mt-8 w-full rounded-2xl border border-white/20 bg-white/10 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
-            >
-              Back to Login
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
-

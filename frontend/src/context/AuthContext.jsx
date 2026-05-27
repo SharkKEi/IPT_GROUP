@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authApi } from '../api/client';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ← start true so app waits
 
   const refreshUser = useCallback(async () => {
     const data = await authApi.me();
@@ -19,8 +19,18 @@ export function AuthProvider({ children }) {
       role: data.role || (data.is_staff ? 'admin' : 'user'),
       profile_picture: data.profile_picture || null,
       is_email_verified: data.is_email_verified,
+      birthday: data.birthday || null,
+      department: data.department || '',
+      specialty: data.specialty || '',
     });
     return data;
+  }, []);
+
+  // ── Restore session on page refresh ──
+  useEffect(() => {
+    refreshUser()
+      .catch(() => setUser(null)) // not logged in, that's fine
+      .finally(() => setLoading(false));
   }, []);
 
   const login = useCallback(async (credentials) => {
