@@ -1,17 +1,10 @@
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.contrib.auth.models import User
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-from django.utils import timezone
 from datetime import timedelta
->>>>>>> 56b74d6 (Updated project code)
-=======
-from django.utils import timezone
-from datetime import timedelta
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
+
 import secrets
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
 
 
 class UserProfile(models.Model):
@@ -25,39 +18,23 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
     is_email_verified = models.BooleanField(default=False)
     activation_token = models.CharField(max_length=64, blank=True, null=True)
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    def generate_activation_token(self):
-        self.activation_token = secrets.token_urlsafe(32)
-        self.save(update_fields=['activation_token'])
-        return self.activation_token
-
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     token_expires_at = models.DateTimeField(null=True, blank=True)  # Token expiration
 
-    def generate_activation_token(self, expires_in_hours=24):
+    def generate_activation_token(self, expires_in_hours: int = 24):
         """Generate activation token that expires in specified hours (default: 24)."""
         self.activation_token = secrets.token_urlsafe(32)
         self.token_expires_at = timezone.now() + timedelta(hours=expires_in_hours)
         self.save(update_fields=['activation_token', 'token_expires_at'])
         return self.activation_token
 
-    def is_token_valid(self):
-        """Check if activation token is still valid."""
+    def is_token_valid(self) -> bool:
         if not self.activation_token:
             return False
         if self.token_expires_at and timezone.now() > self.token_expires_at:
             return False
         return True
 
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Profile of {self.user.username}"
 
 
@@ -84,12 +61,15 @@ class Section(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="sections")
     section_code = models.CharField(max_length=10)
     capacity = models.PositiveIntegerField()
-    schedule = models.CharField(max_length=100, blank=True, default='')  # ← NEW
+    schedule = models.CharField(max_length=100, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["subject", "section_code"], name="unique_section_per_subject")
+            models.UniqueConstraint(
+                fields=["subject", "section_code"],
+                name="unique_section_per_subject",
+            )
         ]
 
     def __str__(self) -> str:
@@ -108,7 +88,10 @@ class Enrollment(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["student", "subject"], name="unique_student_subject_enrollment")
+            models.UniqueConstraint(
+                fields=["student", "subject"],
+                name="unique_student_subject_enrollment",
+            )
         ]
 
     def clean(self):
