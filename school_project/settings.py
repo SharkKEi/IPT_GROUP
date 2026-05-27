@@ -226,6 +226,7 @@ TRUSTED_HOSTS = [
     "http://localhost:8081",
     "http://127.0.0.1:8081",
     "https://ipt-group-mission-fbcs.onrender.com",
+    "https://ipt-group-mission-enrollment.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
