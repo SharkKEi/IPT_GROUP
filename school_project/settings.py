@@ -217,7 +217,7 @@ SIMPLE_JWT = {
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
-# ── CORS & CSRF ───────────────────────────────────────────────────────────────
+# ── CORS & CSRF ──────────────────────────────────────────────────────────
 TRUSTED_HOSTS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -225,6 +225,7 @@ TRUSTED_HOSTS = [
     "http://127.0.0.1:5174",
     "http://localhost:8081",
     "http://127.0.0.1:8081",
+    "https://ipt-group-mission-fbcs.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
