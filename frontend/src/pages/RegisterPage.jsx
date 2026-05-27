@@ -72,7 +72,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         if (picture) data.append('profile_picture', picture);
 
         try {
-            const res = await fetch('/accounts/api/register/', {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/register/`, {
                 method: 'POST',
                 body: data,
             });
