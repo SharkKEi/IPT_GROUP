@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { useEffect, useState } from 'react';
-=======
 import { useEffect, useRef, useState } from 'react';
->>>>>>> 56b74d6 (Updated project code)
-=======
-import { useEffect, useRef, useState } from 'react';
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function ActivatePage() {
@@ -14,29 +6,15 @@ export default function ActivatePage() {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('loading');
     const [message, setMessage] = useState('');
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    useEffect(() => {
-        const token = searchParams.get('token');
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const activationStarted = useRef(false);
 
     useEffect(() => {
-        // React StrictMode runs effects twice in local development.
-        // Without this guard, the first request activates the account and clears the token,
-        // then the second request reports "invalid or expired token".
         if (activationStarted.current) return;
         activationStarted.current = true;
 
         const token = searchParams.get('token');
         const uid = searchParams.get('uid');
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
+
         if (!token) {
             setStatus('error');
             setMessage('Activation token is missing.');
@@ -45,20 +23,9 @@ export default function ActivatePage() {
 
         const activate = async () => {
             try {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                const res = await fetch(`/accounts/api/activate/?token=${encodeURIComponent(token)}`);
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 const query = new URLSearchParams({ token });
                 if (uid) query.set('uid', uid);
-
                 const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                     setStatus('success');
@@ -81,7 +48,6 @@ export default function ActivatePage() {
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
             </div>
-
             <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-10 shadow-2xl backdrop-blur-sm text-center">
                 {status === 'loading' && (
                     <>
@@ -90,7 +56,6 @@ export default function ActivatePage() {
                         <p className="mt-2 text-sm text-white/60">Please wait while we verify your account.</p>
                     </>
                 )}
-
                 {status === 'success' && (
                     <>
                         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl text-emerald-300 border border-emerald-400/30">
@@ -98,15 +63,12 @@ export default function ActivatePage() {
                         </div>
                         <h1 className="text-2xl font-bold text-white">Activated!</h1>
                         <p className="mt-2 text-sm text-white/60">{message}</p>
-                        <button
-                            onClick={() => navigate('/')}
-                            className="mt-8 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-xl transition hover:brightness-110"
-                        >
+                        <button onClick={() => navigate('/')}
+                            className="mt-8 w-full rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 py-3 text-sm font-semibold text-white shadow-xl transition hover:brightness-110">
                             Go to Login
                         </button>
                     </>
                 )}
-
                 {status === 'error' && (
                     <>
                         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-3xl text-red-300 border border-red-400/30">
@@ -114,10 +76,8 @@ export default function ActivatePage() {
                         </div>
                         <h1 className="text-2xl font-bold text-white">Activation Failed</h1>
                         <p className="mt-2 text-sm text-white/60">{message}</p>
-                        <button
-                            onClick={() => navigate('/')}
-                            className="mt-8 w-full rounded-2xl border border-white/20 bg-white/10 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
-                        >
+                        <button onClick={() => navigate('/')}
+                            className="mt-8 w-full rounded-2xl border border-white/20 bg-white/10 py-3 text-sm font-semibold text-white transition hover:bg-white/20">
                             Back to Login
                         </button>
                     </>

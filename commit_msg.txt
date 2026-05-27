@@ -1,58 +1,31 @@
-﻿feat: major UI overhaul, notifications, role-based access, and UX improvements
+﻿fix: post-merge fixes, profile page, modals, and UX improvements
 
-feat(theme): complete UI theme overhaul across all pages
-- Replaced old theme with new glass-card day/night system on all pages
-- Added DashboardShell as universal layout wrapper with shared sidebar,
-  topbar, and page transition animations (fade + slide via framer-motion)
-- Added per-page contextual subtitles in the topbar
-- Implemented smooth page transitions via AnimatePresence + motion.div
-  keyed to location.pathname
+fix(profile): birthday, department, and specialty now save and display correctly
+- Fixed MeAPIView to use request.POST instead of request.data for FormData
+- Added birthday, department, specialty to user_payload in jwt_serializers.py
 
-feat(notifications): functional notification bell with persistence
-- Notification bell now fetches live data (enrollments, sections, students)
+fix(auth): session now persists across page refresh
+- AuthContext useEffect calls refreshUser on mount to restore session
+- loading starts as true so app waits before rendering login or dashboard
+- refreshUser now includes birthday, department, specialty in user state
+
+fix(modals): backdrop now covers full screen on all pages
+- Applied createPortal to Modal component in StudentsPage, SubjectsPage,
+  SectionsPage, EnrollmentsPage, AdminUsersPage, EnrollmentSummaryPage
+- Fixed ConfirmDropModal in EnrollmentsPage to use createPortal
+- Fixed two-panel enroll modal to use createPortal correctly
+
+fix(serializers): restored enrollment_count and section_count fields lost
+during merge conflict resolution
+- StudentSerializer: re-added enrollment_count annotation
+- SubjectSerializer: re-added section_count annotation
+
+fix(sections): increased section_code max_length from 10 to 50 characters
+
+fix(role): Dashboard Quick Actions now filtered by role using canManageSchool
+- Users with user role only see Summary, not staff/admin actions
+
+fix(notifications): student count changes now trigger bell notification
+- Student total id now includes count so additions and removals are detected
+- Bell auto-polls every 30 seconds for new data
 - Unread state persists across navigation using localStorage
-- Badge shows actual unread count instead of just a dot
-- Auto-polls every 30 seconds for new data
-- Student count changes (add/remove) now trigger new notifications
-
-feat(role-access): role-based UI filtering
-- Sidebar nav items filtered by role (admin/staff/user)
-- Dashboard Quick Actions now filtered by role using canManageSchool()
-- Users with user role only see Summary and profile-related actions
-
-feat(students): enhanced StudentsPage
-- Added filter pills: All / Enrolled / Not Enrolled
-- Added sort options: Student Number / Name A-Z / Most Enrolled
-- Enrollment count shown as badge via annotated API queryset
-
-feat(subjects): enhanced SubjectsPage
-- Added filter pills by units dynamic from data
-- Added filter pills: Has Sections / No Sections
-- Added sort options: Code / Title / Most Units / Most Sections
-- Section count shown as badge via annotated API queryset
-
-feat(sections): new SectionsPage with full CRUD
-- Added subject filter pills and capacity filter: All / Has Space / Full
-- Added sort options: By Subject / Section Code / Capacity / Availability
-- Live capacity bars showing enrolled/capacity with color coding
-
-feat(enrollments): merged old and new EnrollmentsPage
-- Filter pills by subject and section with sort options
-- Restored section browser panel with capacity bars and auto-assign preview
-- Restored drop confirmation modal with confirm/cancel flow
-- Enroll modal is now two-panel: form left, section browser right
-- Drop button on each row with confirm modal
-
-feat(summary): EnrollmentSummaryPage roster viewer
-- Added View Roster button on each subject card and Top Enrolled panel
-- Roster modal shows section tabs, metadata, and full student list
-- Fixed modal backdrop using createPortal to escape DOM clipping
-
-feat(api): backend annotation fixes
-- StudentSerializer: added enrollment_count via Count enrollments
-- SubjectSerializer: added section_count via Count sections
-- Annotated querysets in StudentListCreateAPIView and SubjectListCreateAPIView
-
-fix(admin): fixed role update endpoint URL to /accounts/api/users/id/role/
-
-chore(git): updated .gitignore to exclude .venv312/ .history/ and media/profile_pictures/*

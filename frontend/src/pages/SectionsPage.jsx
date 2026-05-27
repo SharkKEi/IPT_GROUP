@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
+
 
 function OrbLayer({ orbs }) {
   return (
@@ -30,21 +32,22 @@ function CapacityBar({ enrolled, capacity, isDay }) {
 }
 
 function Modal({ title, onClose, children, isDay }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 10 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative w-full max-w-md rounded-2xl shadow-2xl z-10 p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
+        className={`relative w-full max-w-md rounded-2xl shadow-2xl z-[10000] p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className={`text-lg font-bold ${isDay ? 'text-slate-800' : 'text-white'}`}>{title}</h2>
           <button onClick={onClose} className={`text-2xl leading-none ${isDay ? 'text-slate-400 hover:text-slate-700' : 'text-white/40 hover:text-white'}`}>×</button>
         </div>
         {children}
       </motion.div>
-    </div>
+    </div>,
+    document.getElementById('root')
   );
 }
 
@@ -133,10 +136,14 @@ export default function SectionsPage({ nightMode }) {
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
         body: JSON.stringify({ ...form, subject: Number(form.subject), capacity: Number(form.capacity) }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setToast({ msg: err.detail || err.non_field_errors?.[0] || JSON.stringify(err), type: 'error' });
+        return;
+      }
       await fetchAll(); closeModal();
       setToast({ msg: modal === 'edit' ? 'Section updated.' : 'Section created.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
+    } catch { setToast({ msg: 'Network error.', type: 'error' }); }
     finally { setSaving(false); }
   };
 

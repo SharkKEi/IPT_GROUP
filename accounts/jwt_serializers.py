@@ -7,6 +7,10 @@ def user_payload(user, request=None):
     profile_picture = None
     role = 'user'
     is_email_verified = True
+    birthday = None
+    department = ''
+    specialty = ''
+
     if hasattr(user, 'profile'):
         if user.profile.profile_picture:
             if request:
@@ -15,8 +19,13 @@ def user_payload(user, request=None):
                 profile_picture = user.profile.profile_picture.url
         role = user.profile.role
         is_email_verified = user.profile.is_email_verified
+        birthday = str(user.profile.birthday) if user.profile.birthday else None
+        department = user.profile.department or ''
+        specialty = user.profile.specialty or ''
+
     if user.is_superuser:
         role = 'admin'
+
     return {
         'id': user.id,
         'username': user.username,
@@ -29,6 +38,9 @@ def user_payload(user, request=None):
         'last_login': user.last_login,
         'profile_picture': profile_picture,
         'is_email_verified': is_email_verified,
+        'birthday': birthday,
+        'department': department,
+        'specialty': specialty,
     }
 
 

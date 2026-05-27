@@ -35,17 +35,11 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         }
     };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const getErrorMessage = (result, status) => {
         if (result?.detail) return result.detail;
         if (result?.message) return result.message;
         if (result?.email_error) return `Email error: ${result.email_error}`;
         if (result?.non_field_errors?.length) return result.non_field_errors.join(' ');
-
         if (result && typeof result === 'object' && Object.keys(result).length > 0) {
             return Object.entries(result)
                 .map(([field, value]) => {
@@ -55,7 +49,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 })
                 .join(' | ');
         }
-
         if (status === 403 || status === 429) {
             return 'Too many registration attempts. Please restart the Django server or wait a few minutes, then try again.';
         }
@@ -65,10 +58,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         return 'Registration failed. Check your input and try again.';
     };
 
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -87,14 +76,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 method: 'POST',
                 body: data,
             });
-<<<<<<< HEAD
-<<<<<<< HEAD
-            const result = await res.json().catch(() => ({}));
-            if (res.ok) {
-                setSuccess(result.message || 'Registration successful! Please check your email.');
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
 
             const text = await res.text();
             let result = {};
@@ -106,32 +87,14 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
 
             if (res.ok) {
                 setSuccess(result.detail || result.message || 'Registration successful! Please check your email.');
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 setForm({ username: '', email: '', password: '', confirm_password: '' });
                 setPicture(null);
                 setPreview(null);
             } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                const msg = result.detail || result.message || JSON.stringify(result) || 'Registration failed.';
-                setError(msg);
-            }
-        } catch {
-            setError('Network error.');
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
                 setError(getErrorMessage(result, res.status));
             }
         } catch {
             setError('Network error. Make sure Django backend is running on port 8000.');
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
         } finally {
             setLoading(false);
         }
@@ -144,11 +107,9 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 <div className="absolute inset-0 bg-[url('https://i.pinimg.com/originals/50/65/1e/50651e95ae192df7dddf0ddc8e92a284.jpg')] bg-cover bg-center opacity-20" />
             </div>
 
-            <button
-                onClick={() => onToggleNight && onToggleNight()}
+            <button onClick={() => onToggleNight && onToggleNight()}
                 className="absolute top-6 right-6 z-10 rounded-full border border-white/20 bg-white/10 p-2.5 text-white backdrop-blur transition hover:bg-white/20"
-                title={nightMode ? 'Switch to Day' : 'Switch to Night'}
-            >
+                title={nightMode ? 'Switch to Day' : 'Switch to Night'}>
                 {nightMode ? '☀️' : '🌙'}
             </button>
 
@@ -156,24 +117,19 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                 <div className="relative w-full max-w-lg">
                     <div className="absolute inset-0 bg-white/10 rounded-3xl" />
                     <div className="relative z-10 rounded-3xl bg-black/30 border border-white/10 shadow-2xl p-10">
-
                         <div className="text-center mb-8">
                             <h1 className="text-4xl font-bold text-white">Create Account</h1>
                             <p className="text-sm text-white/70 mt-2">Join the School Portal today.</p>
                         </div>
 
-                        {error && (
-                            <div className="mb-6 rounded-2xl bg-red-500/10 border border-red-400/50 px-6 py-4 text-sm text-red-100">{error}</div>
-                        )}
+                        {error && <div className="mb-6 rounded-2xl bg-red-500/10 border border-red-400/50 px-6 py-4 text-sm text-red-100">{error}</div>}
 
                         {success && (
                             <div className="mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-400/50 px-6 py-4 text-sm text-emerald-100">
                                 <p className="font-semibold mb-1">🎉 Registration successful!</p>
                                 <p>{success}</p>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="mt-3 w-full rounded-xl bg-emerald-500/20 border border-emerald-400/30 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30 transition"
-                                >
+                                <button onClick={() => navigate('/')}
+                                    className="mt-3 w-full rounded-xl bg-emerald-500/20 border border-emerald-400/30 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30 transition">
                                     Go to Login
                                 </button>
                             </div>
@@ -181,8 +137,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
 
                         {!success && (
                             <form onSubmit={handleSubmit} className="space-y-6">
-
-                                {/* ── SECTION 1: Profile Picture ── */}
                                 <div>
                                     <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">Profile Photo</p>
                                     <div className="flex flex-col items-center">
@@ -201,21 +155,14 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                                <span className="text-white text-xs font-semibold">
-                                                    {preview ? 'Change' : 'Upload'}
-                                                </span>
+                                                <span className="text-white text-xs font-semibold">{preview ? 'Change' : 'Upload'}</span>
                                             </div>
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={loading} />
                                         </label>
-                                        <p className="mt-3 text-xs text-white/40">
-                                            {picture ? picture.name : 'Click circle to upload a photo (optional)'}
-                                        </p>
+                                        <p className="mt-3 text-xs text-white/40">{picture ? picture.name : 'Click circle to upload a photo (optional)'}</p>
                                         {preview && (
-                                            <button
-                                                type="button"
-                                                onClick={() => { setPicture(null); setPreview(null); }}
-                                                className="mt-1 text-xs text-red-400/70 hover:text-red-400 transition"
-                                            >
+                                            <button type="button" onClick={() => { setPicture(null); setPreview(null); }}
+                                                className="mt-1 text-xs text-red-400/70 hover:text-red-400 transition">
                                                 Remove photo
                                             </button>
                                         )}
@@ -224,7 +171,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
 
                                 <div className="border-t border-white/10" />
 
-                                {/* ── SECTION 2: Account Info ── */}
                                 <div>
                                     <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">Account Info</p>
                                     <div className="space-y-4">
@@ -242,7 +188,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                     required disabled={loading} />
                                             </div>
                                         </div>
-
                                         <div>
                                             <label className="text-sm font-semibold text-white/70">Email</label>
                                             <div className="relative mt-2">
@@ -262,7 +207,6 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
 
                                 <div className="border-t border-white/10" />
 
-                                {/* ── SECTION 3: Password ── */}
                                 <div>
                                     <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">Password</p>
                                     <div className="space-y-4">
@@ -275,23 +219,17 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 11h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z" />
                                                     </svg>
                                                 </span>
-                                                <input
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    name="password" placeholder="Min. 6 characters" value={form.password}
+                                                <input type={showPassword ? 'text' : 'password'} name="password"
+                                                    placeholder="Min. 6 characters" value={form.password}
                                                     onChange={handleChange}
                                                     className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
                                                     required disabled={loading} />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(s => !s)}
-                                                    className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition"
-                                                    tabIndex={-1}
-                                                >
+                                                <button type="button" onClick={() => setShowPassword(s => !s)}
+                                                    className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition" tabIndex={-1}>
                                                     <EyeIcon open={showPassword} />
                                                 </button>
                                             </div>
                                         </div>
-
                                         <div>
                                             <label className="text-sm font-semibold text-white/70">Confirm Password</label>
                                             <div className="relative mt-2">
@@ -300,18 +238,13 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                                     </svg>
                                                 </span>
-                                                <input
-                                                    type={showConfirmPassword ? 'text' : 'password'}
-                                                    name="confirm_password" placeholder="Re-enter password" value={form.confirm_password}
+                                                <input type={showConfirmPassword ? 'text' : 'password'} name="confirm_password"
+                                                    placeholder="Re-enter password" value={form.confirm_password}
                                                     onChange={handleChange}
                                                     className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
                                                     required disabled={loading} />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowConfirmPassword(s => !s)}
-                                                    className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition"
-                                                    tabIndex={-1}
-                                                >
+                                                <button type="button" onClick={() => setShowConfirmPassword(s => !s)}
+                                                    className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition" tabIndex={-1}>
                                                     <EyeIcon open={showConfirmPassword} />
                                                 </button>
                                             </div>

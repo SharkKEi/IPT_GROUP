@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
 function OrbLayer({ orbs }) {
   return (
     <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none" style={{ zIndex: 0 }}>
       {orbs.map((o, i) => (
-        <div key={i} className="orb" style={{ width: o.size, height: o.size, left: o.left, top: o.top, background: o.color, animationDelay: `${o.delay}s` }} />
+        <div key={i} className="orb" style={{
+          width: o.size, height: o.size, left: o.left, top: o.top,
+          background: o.color, animationDelay: `${o.delay}s`,
+          pointerEvents: 'none' /* 👈 Added this to prevent invisible walls */
+        }} />
       ))}
     </div>
   );
@@ -29,48 +34,58 @@ function CapacityBar({ enrolled, capacity, isDay }) {
   );
 }
 
-function Modal({ title, onClose, children, isDay }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 10 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative w-full max-w-md rounded-2xl shadow-2xl z-10 p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-lg font-bold ${isDay ? 'text-slate-800' : 'text-white'}`}>{title}</h2>
-          <button onClick={onClose} className={`text-2xl leading-none ${isDay ? 'text-slate-400 hover:text-slate-700' : 'text-white/40 hover:text-white'}`}>×</button>
-        </div>
-        {children}
-      </motion.div>
-    </div>
+function Modal({ open, title, onClose, children, isDay }) {
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <motion.div key="generic-modal" className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 10 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className={`relative w-full max-w-md rounded-2xl shadow-2xl z-[10000] p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-lg font-bold ${isDay ? 'text-slate-800' : 'text-white'}`}>{title}</h2>
+              <button onClick={onClose} className={`text-2xl leading-none ${isDay ? 'text-slate-400 hover:text-slate-700' : 'text-white/40 hover:text-white'}`}>×</button>
+            </div>
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }
 
 function ConfirmDropModal({ open, message, onConfirm, onCancel, isDay }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={`relative z-10 w-full max-w-sm rounded-2xl shadow-2xl p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
-        <h3 className={`text-base font-bold mb-2 ${isDay ? 'text-slate-800' : 'text-white'}`}>Confirm Drop</h3>
-        <p className={`text-sm mb-6 ${isDay ? 'text-slate-500' : 'text-white/60'}`}>{message}</p>
-        <div className="flex gap-3">
-          <button onClick={onCancel}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
-            Cancel
-          </button>
-          <button onClick={onConfirm}
-            className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 py-2.5 text-sm font-bold text-white transition">
-            Yes, Drop
-          </button>
-        </div>
-      </motion.div>
-    </div>
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <motion.div key="drop-modal" className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 10 }}
+            className={`relative z-[10000] w-full max-w-sm rounded-2xl shadow-2xl p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
+            <h3 className={`text-base font-bold mb-2 ${isDay ? 'text-slate-800' : 'text-white'}`}>Confirm Drop</h3>
+            <p className={`text-sm mb-6 ${isDay ? 'text-slate-500' : 'text-white/60'}`}>{message}</p>
+            <div className="flex gap-3">
+              <button onClick={onCancel}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
+                Cancel
+              </button>
+              <button onClick={onConfirm}
+                className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 py-2.5 text-sm font-bold text-white transition">
+                Yes, Drop
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }
 
@@ -198,7 +213,8 @@ export default function EnrollmentsPage({ nightMode }) {
       const res = await fetch('/accounts/api/enrollments/', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-        body: JSON.stringify({ student: Number(enrollStudentId), subject: Number(enrollSubjectId) }),
+        // 👈 Fixed body below to include the recommended section!
+        body: JSON.stringify({ student: Number(enrollStudentId), subject: Number(enrollSubjectId), section: Number(recommendedSection.id) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -399,172 +415,167 @@ export default function EnrollmentsPage({ nightMode }) {
       </div>
 
       {/* Enroll Modal — two-panel layout */}
-      <AnimatePresence>
-        {modal === 'add' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 10 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className={`relative w-full max-w-3xl rounded-2xl shadow-2xl z-10 p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className={`text-lg font-bold ${textH}`}>Enroll Student</h2>
-                  <p className={`text-xs mt-0.5 ${textS}`}>System auto-assigns the most available section.</p>
-                </div>
-                <button onClick={closeModal} className={`text-2xl leading-none ${isDay ? 'text-slate-400 hover:text-slate-700' : 'text-white/40 hover:text-white'}`}>×</button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left: form */}
-                <div className="space-y-4">
-                  {enrollError && <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-red-50 border-red-200 text-red-700' : 'bg-red-500/10 border-red-400/30 text-red-300'}`}>{enrollError}</div>}
-                  {enrollSuccess && <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-emerald-500/10 border-emerald-400/30 text-emerald-300'}`}>{enrollSuccess}</div>}
-
+      {createPortal(
+        <AnimatePresence>
+          {modal === 'add' && (
+            <motion.div key="add-modal" className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.94, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94, y: 10 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                className={`relative w-full max-w-3xl rounded-2xl shadow-2xl z-[10000] p-7 ${isDay ? 'bg-white border border-slate-100' : 'bg-[#0d1f3c] border border-white/10'}`}>
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${textS}`}>Student</label>
-                    <select value={enrollStudentId} onChange={e => { setEnrollStudentId(e.target.value); setEnrollError(''); setEnrollSuccess(''); }}
-                      className={modalSelectCls} disabled={saving}>
-                      {students.map(s => <option key={s.id} value={s.id}>{s.student_number} — {s.full_name}</option>)}
-                    </select>
+                    <h2 className={`text-lg font-bold ${textH}`}>Enroll Student</h2>
+                    <p className={`text-xs mt-0.5 ${textS}`}>System auto-assigns the most available section.</p>
                   </div>
-
-                  <div>
-                    <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${textS}`}>Subject</label>
-                    <select value={enrollSubjectId} onChange={e => { setEnrollSubjectId(e.target.value); setSectionSearch(''); setEnrollError(''); setEnrollSuccess(''); }}
-                      className={modalSelectCls} disabled={saving}>
-                      {subjects.map(s => <option key={s.id} value={s.id}>{s.subject_code} — {s.title} ({s.units} units)</option>)}
-                    </select>
-                  </div>
-
-                  {/* Warning */}
-                  {isDuplicateEnrollment && (
-                    <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-amber-500/10 border-amber-400/30 text-amber-300'}`}>
-                      ⚠ {studentById.get(String(enrollStudentId))?.full_name} is already enrolled in {subjectById.get(String(enrollSubjectId))?.subject_code}.
-                    </div>
-                  )}
-                  {allSectionsFull && !isDuplicateEnrollment && (
-                    <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-amber-500/10 border-amber-400/30 text-amber-300'}`}>
-                      ⚠ All sections for {subjectById.get(String(enrollSubjectId))?.subject_code} are full.
-                    </div>
-                  )}
-
-                  {/* Auto-assign preview */}
-                  {!isDuplicateEnrollment && !allSectionsFull && recommendedSection && (
-                    <div className={`rounded-xl px-4 py-3 border ${isDay ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/10 border-emerald-400/30'}`}>
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDay ? 'text-emerald-600' : 'text-emerald-400'}`}>⚡ Auto-assigned Section</p>
-                      <p className={`text-sm font-semibold ${textH}`}>Section {recommendedSection.section_code}</p>
-                      <p className={`text-xs mb-2 ${textS}`}>{recommendedSection.available} slot{recommendedSection.available !== 1 ? 's' : ''} available</p>
-                      <CapacityBar enrolled={recommendedSection.enrolled} capacity={recommendedSection.capacity} isDay={isDay} />
-                    </div>
-                  )}
-
-                  <div className="flex gap-3 pt-2">
-                    <button onClick={closeModal} disabled={saving}
-                      className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
-                      Cancel
-                    </button>
-                    <button onClick={handleEnroll} disabled={saving || !canEnroll}
-                      className="flex-1 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 py-2.5 text-sm font-bold text-white transition">
-                      {saving ? 'Enrolling…' : isDuplicateEnrollment ? 'Already Enrolled' : allSectionsFull ? 'All Sections Full' : '→ Confirm Enrollment'}
-                    </button>
-                  </div>
+                  <button onClick={closeModal} className={`text-2xl leading-none ${isDay ? 'text-slate-400 hover:text-slate-700' : 'text-white/40 hover:text-white'}`}>×</button>
                 </div>
 
-                {/* Right: section browser */}
-                <div className={`rounded-xl border p-4 ${isDay ? 'border-slate-200 bg-slate-50/50' : 'border-white/10 bg-white/3'}`}>
-                  <h3 className={`text-sm font-bold mb-1 ${textH}`}>Section Browser</h3>
-                  <p className={`text-xs mb-3 ${textS}`}>Sorted by availability — most open first.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left: form */}
+                  <div className="space-y-4">
+                    {enrollError && <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-red-50 border-red-200 text-red-700' : 'bg-red-500/10 border-red-400/30 text-red-300'}`}>{enrollError}</div>}
+                    {enrollSuccess && <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-emerald-500/10 border-emerald-400/30 text-emerald-300'}`}>{enrollSuccess}</div>}
 
-                  <input value={sectionSearch} onChange={e => setSectionSearch(e.target.value)}
-                    placeholder="Search section or subject…"
-                    className={`${inputCls} mb-3 text-xs py-2`} />
+                    <div>
+                      <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${textS}`}>Student</label>
+                      <select value={enrollStudentId} onChange={e => { setEnrollStudentId(e.target.value); setEnrollError(''); setEnrollSuccess(''); }}
+                        className={modalSelectCls} disabled={saving}>
+                        {students.map(s => <option key={s.id} value={s.id}>{s.student_number} — {s.full_name}</option>)}
+                      </select>
+                    </div>
 
-                  {/* Subject filter pills */}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    <button onClick={() => setEnrollSubjectId('')}
-                      className={`px-2 py-1 rounded-full text-[10px] font-semibold transition ${!enrollSubjectId ? pillActive : pillInactive}`}>
-                      All
-                    </button>
-                    {subjects.map(s => (
-                      <button key={s.id} onClick={() => setEnrollSubjectId(String(s.id))}
-                        className={`px-2 py-1 rounded-full text-[10px] font-semibold transition ${String(enrollSubjectId) === String(s.id) ? pillActive : pillInactive}`}>
-                        {s.subject_code}
+                    <div>
+                      <label className={`block text-xs font-bold uppercase tracking-widest mb-1.5 ${textS}`}>Subject</label>
+                      <select value={enrollSubjectId} onChange={e => { setEnrollSubjectId(e.target.value); setSectionSearch(''); setEnrollError(''); setEnrollSuccess(''); }}
+                        className={modalSelectCls} disabled={saving}>
+                        {subjects.map(s => <option key={s.id} value={s.id}>{s.subject_code} — {s.title} ({s.units} units)</option>)}
+                      </select>
+                    </div>
+
+                    {/* Warning */}
+                    {isDuplicateEnrollment && (
+                      <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-amber-500/10 border-amber-400/30 text-amber-300'}`}>
+                        ⚠ {studentById.get(String(enrollStudentId))?.full_name} is already enrolled in {subjectById.get(String(enrollSubjectId))?.subject_code}.
+                      </div>
+                    )}
+                    {allSectionsFull && !isDuplicateEnrollment && (
+                      <div className={`rounded-xl px-4 py-3 text-sm border ${isDay ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-amber-500/10 border-amber-400/30 text-amber-300'}`}>
+                        ⚠ All sections for {subjectById.get(String(enrollSubjectId))?.subject_code} are full.
+                      </div>
+                    )}
+
+                    {/* Auto-assign preview */}
+                    {!isDuplicateEnrollment && !allSectionsFull && recommendedSection && (
+                      <div className={`rounded-xl px-4 py-3 border ${isDay ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-500/10 border-emerald-400/30'}`}>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDay ? 'text-emerald-600' : 'text-emerald-400'}`}>⚡ Auto-assigned Section</p>
+                        <p className={`text-sm font-semibold ${textH}`}>Section {recommendedSection.section_code}</p>
+                        <p className={`text-xs mb-2 ${textS}`}>{recommendedSection.available} slot{recommendedSection.available !== 1 ? 's' : ''} available</p>
+                        <CapacityBar enrolled={recommendedSection.enrolled} capacity={recommendedSection.capacity} isDay={isDay} />
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 pt-2">
+                      <button onClick={closeModal} disabled={saving}
+                        className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
+                        Cancel
                       </button>
-                    ))}
+                      <button onClick={handleEnroll} disabled={saving || !canEnroll}
+                        className="flex-1 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 py-2.5 text-sm font-bold text-white transition">
+                        {saving ? 'Enrolling…' : isDuplicateEnrollment ? 'Already Enrolled' : allSectionsFull ? 'All Sections Full' : '→ Confirm Enrollment'}
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {filteredEnrollSections.length === 0 ? (
-                      <p className={`text-xs text-center py-6 ${textS}`}>No sections found.</p>
-                    ) : filteredEnrollSections.map(sec => {
-                      const subj = subjectById.get(String(sec.subject));
-                      const isRecommended = recommendedSection?.id === sec.id;
-                      return (
-                        <div key={sec.id}
-                          className={`rounded-xl px-3 py-2.5 border transition ${sec.isFull
-                            ? `opacity-50 cursor-not-allowed ${isDay ? 'border-slate-200 bg-slate-50' : 'border-white/5 bg-black/10'}`
-                            : isRecommended
-                              ? `${isDay ? 'border-emerald-300 bg-emerald-50' : 'border-emerald-400/40 bg-emerald-500/10'}`
-                              : `${isDay ? 'border-slate-200 bg-white hover:bg-slate-50' : 'border-white/10 bg-black/10 hover:bg-white/5'}`
-                            }`}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className={`text-xs font-bold ${textH}`}>{sec.section_code}</span>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDay ? 'bg-slate-100 text-slate-500' : 'bg-white/10 text-white/50'}`}>{subj?.subject_code || `#${sec.subject}`}</span>
-                              {isRecommended && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDay ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-300'}`}>⚡ Auto</span>}
+                  {/* Right: section browser */}
+                  <div className={`rounded-xl border p-4 ${isDay ? 'border-slate-200 bg-slate-50/50' : 'border-white/10 bg-white/3'}`}>
+                    <h3 className={`text-sm font-bold mb-1 ${textH}`}>Section Browser</h3>
+                    <p className={`text-xs mb-3 ${textS}`}>Sorted by availability — most open first.</p>
+
+                    <input value={sectionSearch} onChange={e => setSectionSearch(e.target.value)}
+                      placeholder="Search section or subject…"
+                      className={`${inputCls} mb-3 text-xs py-2`} />
+
+                    {/* Subject filter pills */}
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      <button onClick={() => setEnrollSubjectId('')}
+                        className={`px-2 py-1 rounded-full text-[10px] font-semibold transition ${!enrollSubjectId ? pillActive : pillInactive}`}>
+                        All
+                      </button>
+                      {subjects.map(s => (
+                        <button key={s.id} onClick={() => setEnrollSubjectId(String(s.id))}
+                          className={`px-2 py-1 rounded-full text-[10px] font-semibold transition ${String(enrollSubjectId) === String(s.id) ? pillActive : pillInactive}`}>
+                          {s.subject_code}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                      {filteredEnrollSections.length === 0 ? (
+                        <p className={`text-xs text-center py-6 ${textS}`}>No sections found.</p>
+                      ) : filteredEnrollSections.map(sec => {
+                        const subj = subjectById.get(String(sec.subject));
+                        const isRecommended = recommendedSection?.id === sec.id;
+                        return (
+                          <div key={sec.id}
+                            className={`rounded-xl px-3 py-2.5 border transition ${sec.isFull
+                              ? `opacity-50 cursor-not-allowed ${isDay ? 'border-slate-200 bg-slate-50' : 'border-white/5 bg-black/10'}`
+                              : isRecommended
+                                ? `${isDay ? 'border-emerald-300 bg-emerald-50' : 'border-emerald-400/40 bg-emerald-500/10'}`
+                                : `${isDay ? 'border-slate-200 bg-white hover:bg-slate-50' : 'border-white/10 bg-black/10 hover:bg-white/5'}`
+                              }`}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className={`text-xs font-bold ${textH}`}>{sec.section_code}</span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDay ? 'bg-slate-100 text-slate-500' : 'bg-white/10 text-white/50'}`}>{subj?.subject_code || `#${sec.subject}`}</span>
+                                {isRecommended && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isDay ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-300'}`}>⚡ Auto</span>}
+                              </div>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${sec.isFull ? (isDay ? 'bg-red-100 text-red-500' : 'bg-red-500/20 text-red-300') : (isDay ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-300')}`}>
+                                {sec.isFull ? 'FULL' : `${sec.available} open`}
+                              </span>
                             </div>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${sec.isFull ? (isDay ? 'bg-red-100 text-red-500' : 'bg-red-500/20 text-red-300') : (isDay ? 'bg-emerald-100 text-emerald-600' : 'bg-emerald-500/20 text-emerald-300')}`}>
-                              {sec.isFull ? 'FULL' : `${sec.available} open`}
-                            </span>
+                            {sec.schedule && <p className={`text-[10px] mb-1.5 ${textS}`}>🕐 {sec.schedule}</p>}
+                            <CapacityBar enrolled={sec.enrolled} capacity={sec.capacity} isDay={isDay} />
                           </div>
-                          {sec.schedule && <p className={`text-[10px] mb-1.5 ${textS}`}>🕐 {sec.schedule}</p>}
-                          <CapacityBar enrolled={sec.enrolled} capacity={sec.capacity} isDay={isDay} />
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Delete Modal */}
-      <AnimatePresence>
-        {modal === 'delete' && (
-          <Modal title="Remove Enrollment" onClose={closeModal} isDay={isDay}>
-            <p className={`text-sm mb-6 ${textS}`}>
-              Remove <span className={`font-bold ${textH}`}>{studentName(selected?.student)}</span> from <span className={`font-bold ${textH}`}>{subjectLabel(selected?.subject)}</span>?
-            </p>
-            <div className="flex gap-3">
-              <button onClick={closeModal} disabled={saving}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
-                Cancel
-              </button>
-              <button onClick={handleDelete} disabled={saving}
-                className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 py-2.5 text-sm font-bold text-white transition">
-                {saving ? 'Removing…' : 'Yes, Remove'}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </AnimatePresence>
+      <Modal open={modal === 'delete'} title="Remove Enrollment" onClose={closeModal} isDay={isDay}>
+        <p className={`text-sm mb-6 ${textS}`}>
+          Remove <span className={`font-bold ${textH}`}>{studentName(selected?.student)}</span> from <span className={`font-bold ${textH}`}>{subjectLabel(selected?.subject)}</span>?
+        </p>
+        <div className="flex gap-3">
+          <button onClick={closeModal} disabled={saving}
+            className={`flex-1 rounded-xl py-2.5 text-sm font-bold border transition ${isDay ? 'border-slate-200 text-slate-600 hover:bg-slate-50' : 'border-white/10 text-white/60 hover:bg-white/5'}`}>
+            Cancel
+          </button>
+          <button onClick={handleDelete} disabled={saving}
+            className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 py-2.5 text-sm font-bold text-white transition">
+            {saving ? 'Removing…' : 'Yes, Remove'}
+          </button>
+        </div>
+      </Modal>
 
       {/* Drop confirm modal */}
-      <AnimatePresence>
-        {confirmDrop && (
-          <ConfirmDropModal
-            open={!!confirmDrop}
-            message={`Are you sure you want to drop ${confirmDrop?.label}? This cannot be undone.`}
-            onConfirm={handleDrop}
-            onCancel={() => setConfirmDrop(null)}
-            isDay={isDay}
-          />
-        )}
-      </AnimatePresence>
+      <ConfirmDropModal
+        open={!!confirmDrop}
+        message={`Are you sure you want to drop ${confirmDrop?.label}? This cannot be undone.`}
+        onConfirm={handleDrop}
+        onCancel={() => setConfirmDrop(null)}
+        isDay={isDay}
+      />
     </div>
   );
 }

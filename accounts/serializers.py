@@ -14,6 +14,7 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, attrs):
         username = attrs.get('username')
         password = attrs.get('password')
+
         if username and password:
             user = authenticate(username=username, password=password)
             if not user:
@@ -40,22 +41,12 @@ class RegisterSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(min_length=6, write_only=True)
     profile_picture = serializers.ImageField(required=False, allow_empty_file=True)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     def validate_profile_picture(self, value):
         if value:
-            # Max 5MB
             if value.size > 5 * 1024 * 1024:
                 raise serializers.ValidationError('Profile picture must be under 5MB.')
         return value
 
-<<<<<<< HEAD
->>>>>>> 56b74d6 (Updated project code)
-=======
->>>>>>> a00cc98 (Fix project errors and mobile app issues)
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError('Username already taken.')
@@ -116,7 +107,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ["id", "subject", "section_code", "capacity", "schedule", "created_at"]  # ← schedule added
+        fields = ["id", "subject", "section_code", "capacity", "schedule", "created_at"]
         read_only_fields = ["id", "created_at"]
 
 
@@ -167,4 +158,3 @@ class EnrollmentSerializer(serializers.ModelSerializer):
                 subject=subject,
                 section=chosen_section,
             )
-
