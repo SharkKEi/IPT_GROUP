@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ActivatePage() {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('loading');
     const [message, setMessage] = useState('');
-    const activationStarted = useRef(false);
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        const uid = searchParams.get('uid');
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const uid = params.get('uid');
+
+        console.log('token:', token, 'uid:', uid);
 
         if (!token) {
             setStatus('error');
@@ -18,11 +19,8 @@ export default function ActivatePage() {
             return;
         }
 
-        const query = new URLSearchParams({ token });
-        if (uid) query.set('uid', uid);
-
-        const url = `${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`;
-        console.log('Activating with URL:', url);
+        const url = `${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?token=${encodeURIComponent(token)}${uid ? `&uid=${uid}` : ''}`;
+        console.log('Fetching:', url);
 
         fetch(url)
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
@@ -32,22 +30,18 @@ export default function ActivatePage() {
                     setMessage(data.message || 'Account activated successfully!');
                 } else {
                     setStatus('error');
-                    setMessage(data.detail || 'Activation failed. The token may be invalid or expired.');
+                    setMessage(data.detail || 'Activation failed.');
                 }
             })
             .catch(err => {
-                console.error('Activation error:', err);
+                console.error('Error:', err);
                 setStatus('error');
                 setMessage('Network error. Please try again later.');
             });
-
     }, []);
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39] flex items-center justify-center px-4">
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_55%)]" />
-            </div>
             <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/10 p-10 shadow-2xl backdrop-blur-sm text-center">
                 {status === 'loading' && (
                     <>
@@ -58,9 +52,7 @@ export default function ActivatePage() {
                 )}
                 {status === 'success' && (
                     <>
-                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl text-emerald-300 border border-emerald-400/30">
-                            ✓
-                        </div>
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-3xl text-emerald-300 border border-emerald-400/30">✓</div>
                         <h1 className="text-2xl font-bold text-white">Activated!</h1>
                         <p className="mt-2 text-sm text-white/60">{message}</p>
                         <button onClick={() => navigate('/')}
@@ -71,9 +63,7 @@ export default function ActivatePage() {
                 )}
                 {status === 'error' && (
                     <>
-                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-3xl text-red-300 border border-red-400/30">
-                            ✗
-                        </div>
+                        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-3xl text-red-300 border border-red-400/30">✗</div>
                         <h1 className="text-2xl font-bold text-white">Activation Failed</h1>
                         <p className="mt-2 text-sm text-white/60">{message}</p>
                         <button onClick={() => navigate('/')}
