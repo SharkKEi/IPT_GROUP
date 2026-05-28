@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
-
+import { jsonFetch } from '../api/client'; // Import our secure centralized client wrapper
 
 function OrbLayer({ orbs }) {
   return (
@@ -56,9 +56,9 @@ export default function SubjectsPage({ nightMode }) {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filterUnits, setFilterUnits] = useState('all'); // 'all' | '1' | '2' | '3' | ...
-  const [filterSections, setFilterSections] = useState('all'); // 'all' | 'has-sections' | 'no-sections'
-  const [sortBy, setSortBy] = useState('code'); // 'code' | 'title' | 'units' | 'sections'
+  const [filterUnits, setFilterUnits] = useState('all');
+  const [filterSections, setFilterSections] = useState('all');
+  const [sortBy, setSortBy] = useState('code');
   const [modal, setModal] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({ subject_code: '', title: '', units: 3 });
@@ -84,33 +84,44 @@ export default function SubjectsPage({ nightMode }) {
     if (!form.subject_code.trim() || !form.title.trim()) return;
     setSaving(true);
     try {
-      const url = modal === 'edit' ?`${import.meta.env.VITE_API_BASE || ''}/accounts/api/subjects/${selected.id}/` : '/accounts/api/subjects/';
-      const res = await fetch(url, {
-        method: modal === 'edit' ? 'PUT' : 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      // 1. Clean, readable endpoint pathing
+      const path = modal === 'edit'
+        ? `/accounts/api/subjects/${selected.id}/`
+        : '/accounts/api/subjects/';
+
+      // 2. Delegate token extraction, headers, and endpoints to jsonFetch
+      const res = await jsonFetch(path, {
+        method: modal === 'edit' ? 'PUT' : 'POST',
         body: JSON.stringify({ ...form, units: Number(form.units) }),
       });
+
       if (!res.ok) throw new Error();
-      await fetch_(); closeModal();
+      await fetch_();
+      closeModal();
       setToast({ msg: modal === 'edit' ? 'Subject updated.' : 'Subject added.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-    finally { setSaving(false); }
+    } catch {
+      setToast({ msg: 'Something went wrong.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     setSaving(true);
     try {
-      await fetch(`/accounts/api/subjects/${selected.id}/`, {
-        method: 'DELETE', credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
-      await fetch_(); closeModal();
+      // Delegate deletion verification to jsonFetch
+      const res = await jsonFetch(`/accounts/api/subjects/${selected.id}/`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      await fetch_();
+      closeModal();
       setToast({ msg: 'Subject removed.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-    finally { setSaving(false); }
+    } catch {
+      setToast({ msg: 'Something went wrong.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Unique unit values for filter pills
   const unitOptions = useMemo(() => [...new Set(subjects.map(s => s.units))].sort((a, b) => a - b), [subjects]);
 
   const filtered = useMemo(() => {
@@ -301,9 +312,4 @@ export default function SubjectsPage({ nightMode }) {
       </AnimatePresence>
     </div>
   );
-}
-
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
 }
