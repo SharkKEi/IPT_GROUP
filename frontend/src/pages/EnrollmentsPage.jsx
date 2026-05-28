@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { jsonFetch } from '../api/client';
 
 function OrbLayer({ orbs }) {
   return (
@@ -210,10 +211,8 @@ export default function EnrollmentsPage({ nightMode }) {
     if (isDuplicateEnrollment || allSectionsFull || !recommendedSection) return;
     setSaving(true); setEnrollError(''); setEnrollSuccess('');
     try {
-      const res = await fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-        // 👈 Fixed body below to include the recommended section!
+      const res = await jsonFetch('/accounts/api/enrollments/', {
+        method: 'POST',
         body: JSON.stringify({ student: Number(enrollStudentId), subject: Number(enrollSubjectId), section: Number(recommendedSection.id) }),
       });
       const data = await res.json().catch(() => ({}));
@@ -232,10 +231,7 @@ export default function EnrollmentsPage({ nightMode }) {
   const handleDelete = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/accounts/api/enrollments/${selected.id}/`, {
-        method: 'DELETE', credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
+      const res = await jsonFetch(`/accounts/api/enrollments/${selected.id}/`, { method: 'DELETE' });
       if (!res.ok) throw new Error();
       await fetchAll(); closeModal();
       setToast({ msg: 'Enrollment removed.', type: 'success' });
@@ -246,10 +242,7 @@ export default function EnrollmentsPage({ nightMode }) {
   const handleDrop = async () => {
     if (!confirmDrop) return;
     try {
-      const res = await fetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, {
-        method: 'DELETE', credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
+      const res = await jsonFetch(`/accounts/api/enrollments/${confirmDrop.enrollmentId}/`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setToast({ msg: data.detail || 'Failed to drop.', type: 'error' }); return; }
       setToast({ msg: data.message || 'Enrollment dropped.', type: 'success' });
@@ -578,9 +571,4 @@ export default function EnrollmentsPage({ nightMode }) {
       />
     </div>
   );
-}
-
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
 }

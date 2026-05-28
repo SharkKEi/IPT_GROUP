@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { jsonFetch } from '../api/client';
 
 
 function OrbLayer({ orbs }) {
@@ -90,9 +91,8 @@ export default function AdminUsersPage({ nightMode }) {
   const handleRoleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/accounts/api/users/${selected.id}/role/`, {
-        method: 'PATCH', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      const res = await jsonFetch(`/accounts/api/users/${selected.id}/role/`, {
+        method: 'PATCH',
         body: JSON.stringify({ role: newRole }),
       });
       if (!res.ok) throw new Error();
@@ -105,9 +105,8 @@ export default function AdminUsersPage({ nightMode }) {
   const handleDelete = async () => {
     setSaving(true);
     try {
-      await fetch(`/accounts/api/users/${selected.id}/`, {
-        method: 'DELETE', credentials: 'include', headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
+      const res = await jsonFetch(`/accounts/api/users/${selected.id}/`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
       await fetchUsers(); closeModal();
       setToast({ msg: 'User deleted.', type: 'success' });
     } catch { setToast({ msg: 'Failed to delete user.', type: 'error' }); }
@@ -295,9 +294,4 @@ export default function AdminUsersPage({ nightMode }) {
       </AnimatePresence>
     </div>
   );
-}
-
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
 }

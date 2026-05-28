@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { jsonFetch } from '../api/client';
 
 
 function OrbLayer({ orbs }) {
@@ -130,15 +131,16 @@ export default function SectionsPage({ nightMode }) {
     if (!form.subject || !form.section_code.trim()) return;
     setSaving(true);
     try {
-      const url = modal === 'edit' ?`${import.meta.env.VITE_API_BASE || ''}/accounts/api/sections/${selected.id}/` : '/accounts/api/sections/';
-      const res = await fetch(url, {
-        method: modal === 'edit' ? 'PUT' : 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      const path = modal === 'edit'
+        ? `/accounts/api/sections/${selected.id}/`
+        : '/accounts/api/sections/';
+      const res = await jsonFetch(path, {
+        method: modal === 'edit' ? 'PUT' : 'POST',
         body: JSON.stringify({ ...form, subject: Number(form.subject), capacity: Number(form.capacity) }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        setToast({ msg: err.detail || err.non_field_errors?.[0] || JSON.stringify(err), type: 'error' });
+        setToast({ msg: err.detail || err.non_field_errors?.[0] || 'Something went wrong.', type: 'error' });
         return;
       }
       await fetchAll(); closeModal();
@@ -150,10 +152,8 @@ export default function SectionsPage({ nightMode }) {
   const handleDelete = async () => {
     setSaving(true);
     try {
-      await fetch(`/accounts/api/sections/${selected.id}/`, {
-        method: 'DELETE', credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
+      const res = await jsonFetch(`/accounts/api/sections/${selected.id}/`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
       await fetchAll(); closeModal();
       setToast({ msg: 'Section removed.', type: 'success' });
     } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
@@ -389,9 +389,4 @@ export default function SectionsPage({ nightMode }) {
       </AnimatePresence>
     </div>
   );
-}
-
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
 }
