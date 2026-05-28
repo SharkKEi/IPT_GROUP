@@ -1,5 +1,8 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
+// A local variable to hold the token string when browser cookie-reading is blocked
+let memoryCsrfToken = '';
+
 export function getCsrfToken() {
   const name = 'csrftoken';
   for (const cookie of document.cookie.split(';')) {
@@ -13,13 +16,26 @@ export function getCsrfToken() {
 
 /** Fetch CSRF cookie from Django (required before POST/PUT/PATCH/DELETE with session auth). */
 export async function ensureCsrfCookie() {
+  // Fallback to checking normal cookies first
   if (getCsrfToken()) return;
-  await fetch(`${API_BASE}/accounts/api/csrf/`, { credentials: 'include' });
+
+  try {
+    // This hits your backend endpoint which now safely returns the token in JSON text!
+    const response = await fetch(`${API_BASE}/accounts/api/csrf/`, { credentials: 'include' });
+    if (response.ok) {
+      const data = await response.json();
+      // Store the token string directly in memory so JavaScript can read it freely
+      memoryCsrfToken = data.csrftoken || '';
+    }
+  } catch (error) {
+    console.error("Error fetching secure CSRF token:", error);
+  }
 }
 
 function applyCsrfHeaders(headers, method) {
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    const token = getCsrfToken();
+    // If browser cookie storage is empty due to cross-origin blocks, use our memory variable!
+    const token = getCsrfToken() || memoryCsrfToken;
     if (token) {
       headers['X-CSRFToken'] = token;
     }
