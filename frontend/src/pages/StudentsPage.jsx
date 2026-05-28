@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { jsonFetch } from '../api/client';
 
 
 function OrbLayer({ orbs }) {
@@ -81,33 +82,29 @@ export default function StudentsPage({ nightMode }) {
   const closeModal = () => { setModal(null); setSelected(null); };
 
   const handleSave = async () => {
-    if (!form.student_number.trim() || !form.full_name.trim()) return;
-    setSaving(true);
-    try {
-      const url = modal === 'edit'
-        ? `${import.meta.env.VITE_API_BASE || ''}/accounts/api/students/${selected.id}/`
-        : `${import.meta.env.VITE_API_BASE || ''}/accounts/api/students/`;  // ✅
-      const method = modal === 'edit' ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method, credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error();
-      await fetchStudents();
-      closeModal();
-      setToast({ msg: modal === 'edit' ? 'Student updated.' : 'Student added.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-    finally { setSaving(false); }
-  };
+  if (!form.student_number.trim() || !form.full_name.trim()) return;
+  setSaving(true);
+  try {
+    const path = modal === 'edit'
+      ? `/accounts/api/students/${selected.id}/`
+      : '/accounts/api/students/';
+    const res = await jsonFetch(path, {
+      method: modal === 'edit' ? 'PUT' : 'POST',
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) throw new Error();
+    await fetchStudents();
+    closeModal();
+    setToast({ msg: modal === 'edit' ? 'Student updated.' : 'Student added.', type: 'success' });
+  } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
+  finally { setSaving(false); }
+};
 
   const handleDelete = async () => {
     setSaving(true);
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/students/${selected.id}/`, {
-        method: 'DELETE', credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
+      const res = await jsonFetch(`/accounts/api/students/${selected.id}/`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
       await fetchStudents();
       closeModal();
       setToast({ msg: 'Student removed.', type: 'success' });
