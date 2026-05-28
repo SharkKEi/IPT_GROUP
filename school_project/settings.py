@@ -238,6 +238,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8081',
     'https://ipt-group-mission-fbcs.onrender.com',
     'https://ipt-group-front.onrender.com',
+    'https://ipt-group-mission-enrollment.onrender.com',
 ]
 
 if DEBUG:
