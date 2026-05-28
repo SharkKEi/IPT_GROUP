@@ -255,6 +255,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = '.onrender.com'
 
 
 # ── Email Configuration ────────────────────────────────────────────────────────
