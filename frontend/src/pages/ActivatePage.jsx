@@ -25,7 +25,7 @@ export default function ActivatePage() {
             try {
                 const query = new URLSearchParams({ token });
                 if (uid) query.set('uid', uid);
-                const res = await fetch(`/accounts/api/activate/?${query.toString()}`);
+                const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`);
                 const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                     setStatus('success');
