@@ -22,6 +22,7 @@ export default function ActivatePage() {
         }
 
         const activate = async () => {
+            console.log('Activating with URL:', `${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`);
             try {
                 const query = new URLSearchParams({ token });
                 if (uid) query.set('uid', uid);
