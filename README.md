@@ -8,10 +8,10 @@ Full-stack **Student Enrollment & Sectioning System** meeting PIT requirements: 
 |-------------|----------------|
 | Web ↔ Mobile via API | Shared Django REST API; web uses session cookies, mobile uses JWT |
 | CRUD | Students, subjects, sections, enrollments (+ delete) |
-| Login / Register | `/accounts/api/login/`, `/accounts/api/register/` |
-| Email activation | Activation email + `/accounts/api/activate/?token=` |
+| Login / Register |`${import.meta.env.VITE_API_BASE || ''}/accounts/api/login/`,`${import.meta.env.VITE_API_BASE || ''}/accounts/api/register/` |
+| Email activation | Activation email +`${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?token=` |
 | Input validation | DRF serializers + model `clean()` + frontend form validation |
-| Chatbot | `/accounts/api/chatbot/` (rule-based assistant) |
+| Chatbot |`${import.meta.env.VITE_API_BASE || ''}/accounts/api/chatbot/` (rule-based assistant) |
 | RBAC | Roles: `admin`, `staff`, `user` on `UserProfile` |
 | Dashboard & profile | Web dashboard + profile; mobile dashboard + profile |
 | File / image upload | Profile picture (local `media/` or optional Cloudinary) |

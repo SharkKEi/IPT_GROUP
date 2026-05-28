@@ -84,7 +84,7 @@ export default function StudentsPage({ nightMode }) {
     if (!form.student_number.trim() || !form.full_name.trim()) return;
     setSaving(true);
     try {
-      const url = modal === 'edit' ? `/accounts/api/students/${selected.id}/` : '/accounts/api/students/';
+      const url = modal === 'edit' ?`${import.meta.env.VITE_API_BASE || ''}/accounts/api/students/${selected.id}/` : '/accounts/api/students/';
       const method = modal === 'edit' ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method, credentials: 'include',

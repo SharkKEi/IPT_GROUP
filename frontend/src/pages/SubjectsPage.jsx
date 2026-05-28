@@ -84,7 +84,7 @@ export default function SubjectsPage({ nightMode }) {
     if (!form.subject_code.trim() || !form.title.trim()) return;
     setSaving(true);
     try {
-      const url = modal === 'edit' ? `/accounts/api/subjects/${selected.id}/` : '/accounts/api/subjects/';
+      const url = modal === 'edit' ?`${import.meta.env.VITE_API_BASE || ''}/accounts/api/subjects/${selected.id}/` : '/accounts/api/subjects/';
       const res = await fetch(url, {
         method: modal === 'edit' ? 'PUT' : 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },

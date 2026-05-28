@@ -130,7 +130,7 @@ export default function SectionsPage({ nightMode }) {
     if (!form.subject || !form.section_code.trim()) return;
     setSaving(true);
     try {
-      const url = modal === 'edit' ? `/accounts/api/sections/${selected.id}/` : '/accounts/api/sections/';
+      const url = modal === 'edit' ?`${import.meta.env.VITE_API_BASE || ''}/accounts/api/sections/${selected.id}/` : '/accounts/api/sections/';
       const res = await fetch(url, {
         method: modal === 'edit' ? 'PUT' : 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
