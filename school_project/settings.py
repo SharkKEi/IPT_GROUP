@@ -256,6 +256,7 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 
+
 # ── Email Configuration ────────────────────────────────────────────────────────
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
 # IMPORTANT: EMAIL_HOST_PASSWORD must be a Google App Password, not your normal Gmail password.
