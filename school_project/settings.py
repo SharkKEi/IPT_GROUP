@@ -161,7 +161,7 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Logging ──────────────────────────────────────────────────────────────────
+# ── Logging ────────────────────────────────────────────────────────────
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 
@@ -217,7 +217,7 @@ SIMPLE_JWT = {
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
-# ── CORS & CSRF ──────────────────────────────────────────────────────────
+# ── CORS & CSRF ────────────────────────────────────────────────────────────
 TRUSTED_HOSTS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -226,7 +226,7 @@ TRUSTED_HOSTS = [
     "http://localhost:8081",
     "http://127.0.0.1:8081",
     "https://ipt-group-mission-fbcs.onrender.com",
-    "https://ipt-group-mission-enrollment.onrender.com",
+    "https://ipt-group-front.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
@@ -245,7 +245,7 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 
-# ── Email Configuration ───────────────────────────────────────────────────────
+# ── Email Configuration ────────────────────────────────────────────────────────
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
 # IMPORTANT: EMAIL_HOST_PASSWORD must be a Google App Password, not your normal Gmail password.
 
