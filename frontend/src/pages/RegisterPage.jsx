@@ -76,6 +76,10 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
             const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/register/`, {
                 method: 'POST',
                 body: data,
+                credentials: 'include',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                },
             });
 
             const text = await res.text();
@@ -273,4 +277,14 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
             </div>
         </div>
     );
+    function getCsrfToken() {
+        const name = 'csrftoken';
+        for (const cookie of document.cookie.split(';')) {
+            const trimmed = cookie.trim();
+            if (trimmed.startsWith(`${name}=`)) {
+                return decodeURIComponent(trimmed.substring(name.length + 1));
+            }
+        }
+        return '';
+    }
 }
