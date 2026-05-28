@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsonFetch } from '../api/client';
 
 const EyeIcon = ({ open }) => open ? (
     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +73,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         if (picture) data.append('profile_picture', picture);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/register/`, {
+            const res = await jsonFetch('/accounts/api/register/', {
                 method: 'POST',
                 body: data,
             });
@@ -86,15 +87,17 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
             }
 
             if (res.ok) {
-                setSuccess(result.detail || result.message || 'Registration successful! Please check your email.');
+                setSuccess(result.detail || result.message || 'Registration successful! Please check your email to activate your account.');
                 setForm({ username: '', email: '', password: '', confirm_password: '' });
                 setPicture(null);
                 setPreview(null);
             } else {
+                console.error('Registration error:', { status: res.status, result });
                 setError(getErrorMessage(result, res.status));
             }
-        } catch {
-            setError('Network error. Make sure Django backend is running on port 8000.');
+        } catch (err) {
+            console.error('Registration network error:', err);
+            setError('Network error. Please try again or contact support.');
         } finally {
             setLoading(false);
         }
@@ -141,7 +144,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                     <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">Profile Photo</p>
                                     <div className="flex flex-col items-center">
                                         <label className="relative group cursor-pointer">
-                                            <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-dashed border-white/30 bg-white/10 flex items-center justify-center shadow-xl transition group-hover:border-blue-400/60">
+                                            <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-dashed border-white/30 bg-white/10 flex items-center justify-center shadow-xl">
                                                 {preview ? (
                                                     <img src={preview} alt="Preview" className="h-full w-full object-cover" />
                                                 ) : (
@@ -152,7 +155,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                             </div>
                                             <div className="absolute inset-0 rounded-full bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition">
                                                 <svg className="h-6 w-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
                                                 <span className="text-white text-xs font-semibold">{preview ? 'Change' : 'Upload'}</span>
@@ -179,12 +182,12 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                             <div className="relative mt-2">
                                                 <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/40">
                                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99.722 7.121 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 15.5c2.571 0 4.99.722 7.121 2.304M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
                                                 </span>
                                                 <input type="text" name="username" placeholder="e.g. juan_delacruz" value={form.username}
                                                     onChange={handleChange}
-                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
+                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400/50 transition"
                                                     required disabled={loading} />
                                             </div>
                                         </div>
@@ -198,7 +201,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                 </span>
                                                 <input type="email" name="email" placeholder="you@example.com" value={form.email}
                                                     onChange={handleChange}
-                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
+                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400/50 transition"
                                                     required disabled={loading} />
                                             </div>
                                         </div>
@@ -222,7 +225,7 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                                 <input type={showPassword ? 'text' : 'password'} name="password"
                                                     placeholder="Min. 6 characters" value={form.password}
                                                     onChange={handleChange}
-                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
+                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400/50 transition"
                                                     required disabled={loading} />
                                                 <button type="button" onClick={() => setShowPassword(s => !s)}
                                                     className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition" tabIndex={-1}>
@@ -235,13 +238,13 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
                                             <div className="relative mt-2">
                                                 <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/40">
                                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A11.98 11.98 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                                     </svg>
                                                 </span>
                                                 <input type={showConfirmPassword ? 'text' : 'password'} name="confirm_password"
                                                     placeholder="Re-enter password" value={form.confirm_password}
                                                     onChange={handleChange}
-                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400"
+                                                    className="w-full rounded-2xl bg-white/10 px-4 py-3 pl-11 pr-11 text-white placeholder:text-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-blue-400/50 transition"
                                                     required disabled={loading} />
                                                 <button type="button" onClick={() => setShowConfirmPassword(s => !s)}
                                                     className="absolute inset-y-0 right-4 flex items-center text-white/40 hover:text-white transition" tabIndex={-1}>
