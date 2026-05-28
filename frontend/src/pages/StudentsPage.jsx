@@ -89,13 +89,13 @@ export default function StudentsPage({ nightMode }) {
         ? `/accounts/api/students/${selected.id}/`
         : '/accounts/api/students/';
 
-      // Grab the token using your existing function
-      const csrfToken = getCookie('csrftoken');
+      // FETCH THE LIVE TOKEN AS JSON RIGHT BEFORE THE REQUEST
+      const csrfToken = await fetchCsrfToken();
 
       const res = await jsonFetch(path, {
         method: modal === 'edit' ? 'PUT' : 'POST',
         headers: {
-          'X-CSRFToken': csrfToken, // Attach it here!
+          'X-CSRFToken': csrfToken, // Attach the JSON token here
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(form),
@@ -105,27 +105,34 @@ export default function StudentsPage({ nightMode }) {
       await fetchStudents();
       closeModal();
       setToast({ msg: modal === 'edit' ? 'Student updated.' : 'Student added.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-    finally { setSaving(false); }
+    } catch {
+      setToast({ msg: 'Something went wrong.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     setSaving(true);
     try {
-      const csrfToken = getCookie('csrftoken'); // Grab the token
+      // FETCH THE LIVE TOKEN AS JSON
+      const csrfToken = await fetchCsrfToken();
 
       const res = await jsonFetch(`/accounts/api/students/${selected.id}/`, {
         method: 'DELETE',
         headers: {
-          'X-CSRFToken': csrfToken // Attach it here!
+          'X-CSRFToken': csrfToken // Attach the token here
         }
       });
       if (!res.ok) throw new Error();
       await fetchStudents();
       closeModal();
       setToast({ msg: 'Student removed.', type: 'success' });
-    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-    finally { setSaving(false); }
+    } catch {
+      setToast({ msg: 'Something went wrong.', type: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -324,7 +331,20 @@ export default function StudentsPage({ nightMode }) {
   );
 }
 
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
-}
+// 1. PLACE THIS HELPER FUNCTION AT THE VERY BOTTOM OF YOUR FILE 
+// (Replace the old getCookie function with this)
+const fetchCsrfToken = async () => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE || '';
+    // This hits your existing CsrfCookieAPIView backend path!
+    const res = await fetch(`${baseUrl}/accounts/api/csrf/`, {
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    return data.csrftoken;
+  } catch (err) {
+    console.error("Failed to fetch CSRF token:", err);
+    return '';
+  }
+};
