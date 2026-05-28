@@ -89,13 +89,13 @@ export default function StudentsPage({ nightMode }) {
         ? `/accounts/api/students/${selected.id}/`
         : '/accounts/api/students/';
 
-      // FETCH THE LIVE TOKEN AS JSON RIGHT BEFORE THE REQUEST
+      // Await the token string here
       const csrfToken = await fetchCsrfToken();
 
       const res = await jsonFetch(path, {
         method: modal === 'edit' ? 'PUT' : 'POST',
         headers: {
-          'X-CSRFToken': csrfToken, // Attach the JSON token here
+          'X-CSRFToken': csrfToken, // Attach the working string
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(form),
@@ -336,13 +336,29 @@ export default function StudentsPage({ nightMode }) {
 const fetchCsrfToken = async () => {
   try {
     const baseUrl = import.meta.env.VITE_API_BASE || '';
-    // This hits your existing CsrfCookieAPIView backend path!
     const res = await fetch(`${baseUrl}/accounts/api/csrf/`, {
       credentials: 'include'
     });
     if (!res.ok) throw new Error();
+
     const data = await res.json();
-    return data.csrftoken;
+    console.log("Full response from CSRF endpoint:", data);
+
+    // If your backend returns the raw token under a different key (like 'csrfToken' or 'token')
+    const token = data.csrftoken || data.csrfToken || data.token;
+
+    if (token) {
+      console.log("Extracted Token from JSON payload:", token);
+      return token;
+    }
+
+    // FALLBACK: If CsrfCookieAPIView only sets the cookie but returns no JSON, 
+    // it will now exist in document.cookie because it's no longer blocked by .onrender.com!
+    const matches = document.cookie.match('(^|;) ?csrftoken=([^;]*)(;|$)');
+    const cookieToken = matches ? matches[2] : '';
+    console.log("Fallback Token extracted from cookie storage:", cookieToken);
+
+    return cookieToken;
   } catch (err) {
     console.error("Failed to fetch CSRF token:", err);
     return '';
