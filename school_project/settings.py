@@ -255,6 +255,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = '.onrender.com'
 
 # ── Email Configuration ────────────────────────────────────────────────────────
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
