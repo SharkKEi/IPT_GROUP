@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
+    'anymail',
 ]
 
 if os.environ.get('USE_CLOUDINARY', '').lower() in ('1', 'true', 'yes'):
@@ -261,18 +262,11 @@ SESSION_COOKIE_SECURE = True
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
 # IMPORTANT: EMAIL_HOST_PASSWORD must be a Google App Password, not your normal Gmail password.
 
-EMAIL_BACKEND = os.environ.get(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.smtp.EmailBackend',
-)
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
-EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true', 'yes')
-EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 30))
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '').strip()
-DEFAULT_FROM_EMAIL = (os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@schoolportal.local').strip()
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'anymail.backends.resend.EmailBackend')
+ANYMAIL = {
+    'RESEND_API_KEY': os.environ.get('RESEND_API_KEY', ''),
+}
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set REQUIRE_EMAIL_VERIFICATION=true in production to enforce activation before login.
