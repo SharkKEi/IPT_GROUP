@@ -12,4 +12,4 @@ python-dotenv==1.1.0
 psycopg2-binary==2.9.10
 gunicorn==23.0.0
 whitenoise==6.8.2
-django-anymail
+django-anymail[resend]
