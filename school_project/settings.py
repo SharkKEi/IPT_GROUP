@@ -239,8 +239,11 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = TRUSTED_HOSTS
 
 # SPA on Vite (proxied to Django): allow cookie on localhost
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
 
 # ── Email Configuration ───────────────────────────────────────────────────────
 # Gmail SMTP is enabled through .env so activation emails can be sent to real inboxes.
