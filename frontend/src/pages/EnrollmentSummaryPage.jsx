@@ -196,10 +196,10 @@ export default function EnrollmentSummaryPage({ nightMode }) {
     (async () => {
       try {
         const [subR, secR, eR, sR] = await Promise.all([
-          fetch('/accounts/api/subjects/', { credentials: 'include' }),
-          fetch('/accounts/api/sections/', { credentials: 'include' }),
-          fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-          fetch('/accounts/api/students/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/subjects/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' }),
         ]);
         const arr = async r => { const d = await r.json(); return Array.isArray(d) ? d : d.results || []; };
         const [sub, sec, e, s] = await Promise.all([arr(subR), arr(secR), arr(eR), arr(sR)]);

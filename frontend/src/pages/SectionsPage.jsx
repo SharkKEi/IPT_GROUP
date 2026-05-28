@@ -103,9 +103,9 @@ export default function SectionsPage({ nightMode }) {
   const fetchAll = async () => {
     try {
       const [subR, secR, eR] = await Promise.all([
-        fetch('/accounts/api/subjects/', { credentials: 'include' }),
-        fetch('/accounts/api/sections/', { credentials: 'include' }),
-        fetch('/accounts/api/enrollments/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/subjects/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
       ]);
       const arr = async r => { const d = await r.json(); return Array.isArray(d) ? d : d.results || []; };
       const [sub, sec, e] = await Promise.all([arr(subR), arr(secR), arr(eR)]);

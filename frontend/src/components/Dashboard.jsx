@@ -120,9 +120,9 @@ function NotifBell({ isDay }) {
     const build = async () => {
       try {
         const [eRes, secRes, sRes] = await Promise.all([
-          fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-          fetch('/accounts/api/sections/', { credentials: 'include' }),
-          fetch('/accounts/api/students/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' }),
         ]);
         const arr = async (res) => { const d = await res.json(); return Array.isArray(d) ? d : d.results || []; };
         const [enrollments, sections, students] = await Promise.all([arr(eRes), arr(secRes), arr(sRes)]);
@@ -416,10 +416,10 @@ export default function Dashboard({ user, onLogout, nightMode, onToggleNight }) 
     (async () => {
       try {
         const [sR, eR, secR, subR] = await Promise.all([
-          fetch('/accounts/api/students/', { credentials: 'include' }),
-          fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-          fetch('/accounts/api/sections/', { credentials: 'include' }),
-          fetch('/accounts/api/subjects/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
+          fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/subjects/', { credentials: 'include' }),
         ]);
         const [sD, eD, secD, subD] = await Promise.all([sR.json(), eR.json(), secR.json(), subR.json()]);
         const arr = d => Array.isArray(d) ? d : d.results || [];

@@ -69,24 +69,24 @@ export async function apiFetch(path, options = {}) {
 
 export const authApi = {
   login: async (body) => {
-    const data = await apiFetch('/accounts/api/login/', {
+    const data = await apifetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/login/', {
       method: 'POST',
       body: JSON.stringify(body),
     });
     await ensureCsrfCookie();
     return data;
   },
-  logout: () => apiFetch('/accounts/api/logout/', { method: 'POST' }),
-  me: () => apiFetch('/accounts/api/me/'),
+  logout: () => apifetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/logout/', { method: 'POST' }),
+  me: () => apifetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/me/'),
   register: (formData) =>
-    jsonFetch('/accounts/api/register/', { method: 'POST', body: formData }).then(async (res) => {
+    jsonfetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/register/', { method: 'POST', body: formData }).then(async (res) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw Object.assign(new Error(data.detail || 'Registration failed'), { data });
       return data;
     }),
   activate: (token) => apiFetch(`/accounts/api/activate/?token=${encodeURIComponent(token)}`),
   resendActivation: (email) =>
-    apiFetch('/accounts/api/resend-activation/', {
+    apifetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/resend-activation/', {
       method: 'POST',
       body: JSON.stringify({ email }),
     }),
@@ -94,7 +94,7 @@ export const authApi = {
 
 export const chatbotApi = {
   send: (message) =>
-    apiFetch('/accounts/api/chatbot/', { method: 'POST', body: JSON.stringify({ message }) }),
+    apifetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/chatbot/', { method: 'POST', body: JSON.stringify({ message }) }),
 };
 
 export function canManageSchool(role) {

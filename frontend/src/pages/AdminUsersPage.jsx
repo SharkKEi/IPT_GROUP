@@ -75,7 +75,7 @@ export default function AdminUsersPage({ nightMode }) {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('/accounts/api/users/', { credentials: 'include' });
+      const res = await fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/users/', { credentials: 'include' });
       const d = await res.json();
       setUsers(Array.isArray(d) ? d : d.results || []);
     } catch { } finally { setLoading(false); }

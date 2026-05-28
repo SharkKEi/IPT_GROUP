@@ -67,7 +67,7 @@ export default function SubjectsPage({ nightMode }) {
 
   const fetch_ = async () => {
     try {
-      const res = await fetch('/accounts/api/subjects/', { credentials: 'include' });
+      const res = await fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/subjects/', { credentials: 'include' });
       const d = await res.json();
       setSubjects(Array.isArray(d) ? d : d.results || []);
     } catch { } finally { setLoading(false); }

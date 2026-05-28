@@ -66,7 +66,7 @@ export default function StudentsPage({ nightMode }) {
 
   const fetchStudents = async () => {
     try {
-      const res = await fetch('/accounts/api/students/', { credentials: 'include' });
+      const res = await fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' });
       const d = await res.json();
       setStudents(Array.isArray(d) ? d : d.results || []);
     } catch { }

@@ -45,9 +45,9 @@ function NotifBell({ isDay }) {
         const build = async () => {
             try {
                 const [eRes, secRes, sRes] = await Promise.all([
-                    fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-                    fetch('/accounts/api/sections/', { credentials: 'include' }),
-                    fetch('/accounts/api/students/', { credentials: 'include' }),
+                    fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
+                    fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
+                    fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' }),
                 ]);
                 const arr = async (res) => { const d = await res.json(); return Array.isArray(d) ? d : d.results || []; };
                 const [enrollments, sections, students] = await Promise.all([arr(eRes), arr(secRes), arr(sRes)]);

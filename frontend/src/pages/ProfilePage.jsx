@@ -24,7 +24,7 @@ export default function ProfilePage({ user, onProfileUpdate, nightMode }) {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await jsonFetch('/accounts/api/me/');
+                const res = await jsonfetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/me/');
                 if (!res.ok) { setError('Failed to load profile.'); return; }
                 const data = await res.json();
                 setProfile(data);
@@ -67,7 +67,7 @@ export default function ProfilePage({ user, onProfileUpdate, nightMode }) {
         if (newPicture) formData.append('profile_picture', newPicture);
 
         try {
-            const res = await jsonFetch('/accounts/api/me/', { method: 'PATCH', body: formData });
+            const res = await jsonfetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/me/', { method: 'PATCH', body: formData });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) { setError(data.detail || 'Failed to save changes.'); return; }
 

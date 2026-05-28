@@ -183,10 +183,10 @@ export default function EnrollmentsPage({ nightMode }) {
   const fetchAll = async () => {
     try {
       const [eR, sR, subR, secR] = await Promise.all([
-        fetch('/accounts/api/enrollments/', { credentials: 'include' }),
-        fetch('/accounts/api/students/', { credentials: 'include' }),
-        fetch('/accounts/api/subjects/', { credentials: 'include' }),
-        fetch('/accounts/api/sections/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/students/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/subjects/', { credentials: 'include' }),
+        fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/sections/', { credentials: 'include' }),
       ]);
       const arr = async r => { const d = await r.json(); return Array.isArray(d) ? d : d.results || []; };
       const [e, s, sub, sec] = await Promise.all([arr(eR), arr(sR), arr(subR), arr(secR)]);
@@ -210,7 +210,7 @@ export default function EnrollmentsPage({ nightMode }) {
     if (isDuplicateEnrollment || allSectionsFull || !recommendedSection) return;
     setSaving(true); setEnrollError(''); setEnrollSuccess('');
     try {
-      const res = await fetch('/accounts/api/enrollments/', {
+      const res = await fetch((import.meta.env.VITE_API_BASE || '') + '/accounts/api/enrollments/', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
         // 👈 Fixed body below to include the recommended section!
