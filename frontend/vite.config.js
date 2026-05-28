@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', 
-
+  base: '/',                    // Important for Render
+  build: {
+    outDir: 'dist',
+  },
   server: {
     proxy: {
       '/accounts': {

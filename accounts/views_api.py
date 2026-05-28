@@ -166,40 +166,37 @@ class ActivateAccountAPIView(APIView):
     def get(self, request):
         token = request.query_params.get('token')
         uid = request.query_params.get('uid')
-        if not token:
-            return Response({'detail': 'Activation token is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        profile = None
+        if not token or not uid:
+            return Response({'detail': 'Missing token or uid.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if uid:
-            try:
-                profile = UserProfile.objects.select_related('user').get(user_id=uid)
-            except (UserProfile.DoesNotExist, ValueError):
-                return Response({'detail': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            profile = UserProfile.objects.select_related('user').get(user_id=uid)
+        except (UserProfile.DoesNotExist, ValueError):
+            return Response({'detail': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            if profile.is_email_verified:
-                return Response({'message': 'Account is already activated. You can now log in.'}, status=status.HTTP_200_OK)
+        if profile.is_email_verified:
+            return Response({'message': 'Account is already activated.'}, status=status.HTTP_200_OK)
 
-            if profile.activation_token != token:
-                return Response({'detail': 'Invalid or expired activation token.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            try:
-                profile = UserProfile.objects.select_related('user').get(activation_token=token)
-            except UserProfile.DoesNotExist:
-                return Response({'detail': 'Invalid or expired activation token.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Strict token matching
+        if profile.activation_token != token:
+            logger.warning(f"Token mismatch for user {uid}. Expected: {profile.activation_token}, Got: {token}")
+            return Response({'detail': 'Invalid or expired activation token.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not profile.is_token_valid():
-            logger.warning(f'Expired token used for activation: {profile.user.username}')
             return Response({'detail': 'Activation token has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Activate
         user = profile.user
         user.is_active = True
         user.save(update_fields=['is_active'])
+
         profile.is_email_verified = True
         profile.activation_token = None
         profile.token_expires_at = None
         profile.save(update_fields=['is_email_verified', 'activation_token', 'token_expires_at'])
 
+        logger.info(f"Account activated successfully: {user.username}")
         return Response({'message': 'Account activated successfully. You can now log in.'}, status=status.HTTP_200_OK)
 
 
