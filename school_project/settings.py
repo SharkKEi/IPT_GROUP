@@ -218,25 +218,35 @@ SIMPLE_JWT = {
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
 # ── CORS & CSRF ────────────────────────────────────────────────────────────
-TRUSTED_HOSTS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174",
-    "http://localhost:8081",
-    "http://127.0.0.1:8081",
-    "https://ipt-group-mission-fbcs.onrender.com",
-    "https://ipt-group-front.onrender.com",
+# ALLOWED_HOSTS for Django
+ALLOWED_HOSTS_LIST = [
+    'localhost',
+    '127.0.0.1',
+    'ipt-group-mission-fbcs.onrender.com',
+    'ipt-group-front.onrender.com',
 ]
 
-CORS_ALLOWED_ORIGINS = TRUSTED_HOSTS
+ALLOWED_HOSTS = ALLOWED_HOSTS_LIST + ['*']
+
+# CORS_ALLOWED_ORIGINS for django-cors-headers (origins only, no protocol/port)
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'https://ipt-group-mission-fbcs.onrender.com',
+    'https://ipt-group-front.onrender.com',
+]
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = TRUSTED_HOSTS
+# CSRF_TRUSTED_ORIGINS for CSRF (full URLs with protocol)
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 # SPA on Vite (proxied to Django): allow cookie on localhost
 CSRF_COOKIE_SAMESITE = 'None'
