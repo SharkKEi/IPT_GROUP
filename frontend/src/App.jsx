@@ -196,8 +196,6 @@ function App() {
     </div>
   )
 
-  
-
   return (
     <>
       {isLoggedIn && <Chatbot isDay={!nightMode} />}
@@ -207,7 +205,13 @@ function App() {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
             <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
-            
+            <Route path="/activate" element={
+              <div className="min-h-screen bg-black text-white p-10">
+                <h1>DEBUG: Activate Page Loaded</h1>
+                <p>Path: {window.location.pathname}</p>
+                <p>Search: {window.location.search}</p>
+              </div>
+            } />
 
             <Route element={<ProtectedLayout />}>
 
@@ -229,13 +233,6 @@ function App() {
           </Routes>
         </Suspense>
       </AnimatePresence>
-      <Route path="/activate" element={
-        <div className="min-h-screen bg-black text-white p-10">
-          <h1>DEBUG: Activate Page Loaded</h1>
-          <p>Path: {window.location.pathname}</p>
-          <p>Search: {window.location.search}</p>
-        </div>
-      } />
     </>
   )
 }
