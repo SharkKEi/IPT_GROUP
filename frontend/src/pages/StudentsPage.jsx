@@ -82,28 +82,44 @@ export default function StudentsPage({ nightMode }) {
   const closeModal = () => { setModal(null); setSelected(null); };
 
   const handleSave = async () => {
-  if (!form.student_number.trim() || !form.full_name.trim()) return;
-  setSaving(true);
-  try {
-    const path = modal === 'edit'
-      ? `/accounts/api/students/${selected.id}/`
-      : '/accounts/api/students/';
-    const res = await jsonFetch(path, {
-      method: modal === 'edit' ? 'PUT' : 'POST',
-      body: JSON.stringify(form),
-    });
-    if (!res.ok) throw new Error();
-    await fetchStudents();
-    closeModal();
-    setToast({ msg: modal === 'edit' ? 'Student updated.' : 'Student added.', type: 'success' });
-  } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
-  finally { setSaving(false); }
-};
+    if (!form.student_number.trim() || !form.full_name.trim()) return;
+    setSaving(true);
+    try {
+      const path = modal === 'edit'
+        ? `/accounts/api/students/${selected.id}/`
+        : '/accounts/api/students/';
+
+      // Grab the token using your existing function
+      const csrfToken = getCookie('csrftoken');
+
+      const res = await jsonFetch(path, {
+        method: modal === 'edit' ? 'PUT' : 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken, // Attach it here!
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error();
+      await fetchStudents();
+      closeModal();
+      setToast({ msg: modal === 'edit' ? 'Student updated.' : 'Student added.', type: 'success' });
+    } catch { setToast({ msg: 'Something went wrong.', type: 'error' }); }
+    finally { setSaving(false); }
+  };
 
   const handleDelete = async () => {
     setSaving(true);
     try {
-      const res = await jsonFetch(`/accounts/api/students/${selected.id}/`, { method: 'DELETE' });
+      const csrfToken = getCookie('csrftoken'); // Grab the token
+
+      const res = await jsonFetch(`/accounts/api/students/${selected.id}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': csrfToken // Attach it here!
+        }
+      });
       if (!res.ok) throw new Error();
       await fetchStudents();
       closeModal();
