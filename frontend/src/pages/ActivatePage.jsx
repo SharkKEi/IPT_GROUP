@@ -9,9 +9,6 @@ export default function ActivatePage() {
     const activationStarted = useRef(false);
 
     useEffect(() => {
-        if (activationStarted.current) return;
-        activationStarted.current = true;
-
         const token = searchParams.get('token');
         const uid = searchParams.get('uid');
 
@@ -21,28 +18,30 @@ export default function ActivatePage() {
             return;
         }
 
-        const activate = async () => {
-            console.log('Activating with URL:', `${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`);
-            try {
-                const query = new URLSearchParams({ token });
-                if (uid) query.set('uid', uid);
-                const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`);
-                const data = await res.json().catch(() => ({}));
-                if (res.ok) {
+        const query = new URLSearchParams({ token });
+        if (uid) query.set('uid', uid);
+
+        const url = `${import.meta.env.VITE_API_BASE || ''}/accounts/api/activate/?${query.toString()}`;
+        console.log('Activating with URL:', url);
+
+        fetch(url)
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok) {
                     setStatus('success');
                     setMessage(data.message || 'Account activated successfully!');
                 } else {
                     setStatus('error');
                     setMessage(data.detail || 'Activation failed. The token may be invalid or expired.');
                 }
-            } catch {
+            })
+            .catch(err => {
+                console.error('Activation error:', err);
                 setStatus('error');
                 setMessage('Network error. Please try again later.');
-            }
-        };
+            });
 
-        activate();
-    }, [searchParams]);
+    }, []);
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#100c2b] via-[#1e0b4d] to-[#130b39] flex items-center justify-center px-4">
