@@ -73,13 +73,9 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
         if (picture) data.append('profile_picture', picture);
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/accounts/api/register/`, {
+            const res = await jsonFetch('/accounts/api/register/', {
                 method: 'POST',
                 body: data,
-                credentials: 'include',
-                headers: {
-                    'X-CSRFToken': getCsrfToken(),
-                },
             });
 
             const text = await res.text();
@@ -91,16 +87,14 @@ export default function RegisterPage({ nightMode, onToggleNight }) {
             }
 
             if (res.ok) {
-                setSuccess(result.detail || result.message || 'Registration successful! Please check your email to activate your account.');
+                setSuccess(result.detail || result.message || 'Registration successful! Please check your email.');
                 setForm({ username: '', email: '', password: '', confirm_password: '' });
                 setPicture(null);
                 setPreview(null);
             } else {
-                console.error('Registration error:', { status: res.status, result });
                 setError(getErrorMessage(result, res.status));
             }
         } catch (err) {
-            console.error('Registration network error:', err);
             setError('Network error. Please try again or contact support.');
         } finally {
             setLoading(false);
