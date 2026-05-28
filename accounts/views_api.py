@@ -238,13 +238,22 @@ class DevActivateAPIView(APIView):
 
 # ── CSRF cookie (SPA) ─────────────────────────────────────────────────────────
 
+# ── CSRF cookie (SPA) ─────────────────────────────────────────────────────────
+
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CsrfCookieAPIView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
 
     def get(self, request):
-        return Response({'detail': 'CSRF cookie set'})
+        # Import get_token right here to grab the token securely
+        from django.middleware.csrf import get_token
+        
+        # Return the actual 64-character token inside the JSON payload
+        return Response({
+            'detail': 'CSRF cookie set',
+            'csrftoken': get_token(request)
+        })
 
 
 # ── Chatbot ───────────────────────────────────────────────────────────────────
