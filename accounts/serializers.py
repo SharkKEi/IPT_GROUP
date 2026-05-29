@@ -53,9 +53,13 @@ class RegisterSerializer(serializers.Serializer):
         return value
 
     def validate_email(self, value):
+        # This just checks if it has an '@' and valid format.
         validate_email(value)
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Email already registered.')
+        # DELETE OR COMMENT OUT THESE TWO LINES:
+        # if User.objects.filter(email=value).exists():
+        #     raise serializers.ValidationError('Email already registered.')
+        #if User.objects.filter(email=value).exists():
+            #raise serializers.ValidationError('Email already registered.')
         return value
 
     def validate(self, attrs):
