@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "School Portal",
+    "slug": "school-portal-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#1e0b4d"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ipt.schoolportal"
+    },
+    "android": {
+      "package": "com.geinyl.schoolportal",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow School Portal to access your photos for profile pictures."
+        }
+      ],
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "695327c4-8dfe-4463-ac63-cda466574a8f"
+      }
+    }
+  }
+}
