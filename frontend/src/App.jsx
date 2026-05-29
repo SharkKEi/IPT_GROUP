@@ -35,6 +35,7 @@ function PageLoader() {
 
 function App() {
   const { user, isLoggedIn, login, logout, setUser } = useAuth()
+  const { user, isLoggedIn, login, logout, setUser, loading } = useAuth()
   const [formData, setFormData] = useState({ username: '', password: '' })
   const [remember, setRemember] = useState(true)
   const [error, setError] = useState('')
@@ -195,6 +196,7 @@ function App() {
       </div>
     </div>
   )
+  if (loading) return <PageLoader />
 
   return (
     <>
