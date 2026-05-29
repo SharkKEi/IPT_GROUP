@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; margin: 0; padding: 0; }
+#root { height: 100vh; margin: 0; padding: 0; overflow-x: hidden; }
+
+/* ══ Smooth hue-cycling backgrounds ══ */
+/* Day: muted, eye-friendly pastels — not blinding */
+.bg-hue-day {
+  background: linear-gradient(135deg,
+    #dbeafe, #e0f2fe, #d1fae5, #fef3c7,
+    #ede9fe, #cffafe, #fce7f3, #dbeafe);
+  background-size: 400% 400%;
+  animation: hue-cycle 20s ease infinite;
+}
+/* Night: deep rich jewel tones */
+.bg-hue-night {
+  background: linear-gradient(135deg,
+    #0a1628, #0d2a20, #1a1a08, #1a0828,
+    #0a1628, #081820, #201208, #080e20);
+  background-size: 400% 400%;
+  animation: hue-cycle 20s ease infinite;
+}
+@keyframes hue-cycle {
+  0%   { background-position: 0%   0%;   }
+  25%  { background-position: 100% 0%;   }
+  50%  { background-position: 100% 100%; }
+  75%  { background-position: 0%   100%; }
+  100% { background-position: 0%   0%;   }
+}
+
+/* ══ Sidebar — mode-aware ══ */
+.sidebar-day {
+  background: linear-gradient(180deg, #2d6aad 0%, #1e548a 50%, #174878 100%);
+}
+.sidebar-night {
+  background: linear-gradient(180deg, #0a1628 0%, #0d2040 60%, #0f2a4a 100%);
+}
+
+/* ══ Glass cards ══ */
+.glass-card { position: relative; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+/* Day: white-ish with stronger border + heavy shadow */
+.glass-day {
+  background: rgba(255,255,255,0.38);
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.12),
+    0 2px 8px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+.glass-day:hover {
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.18),
+    0 4px 12px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  transform: translateY(-3px);
+}
+
+/* Night: dark navy glass with glow edges */
+.glass-night {
+  background: rgba(13,28,58,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.40),
+    0 2px 8px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+.glass-night:hover {
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.55),
+    0 4px 16px rgba(56,189,248,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateY(-3px);
+}
+
+/* ══ Top bar glass ══ */
+.topbar-day {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(200,220,255,0.5);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.topbar-night {
+  background: rgba(10,22,40,0.50);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.40);
+}
+
+/* ══ Enrollment rows ══ */
+.row-day   { background: rgba(255,255,255,0.40); border-color: rgba(186,230,253,0.7); }
+.row-night { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+
+/* ══ Pulsing orbs ══ */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(55px);
+  animation: orb-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.orb:nth-child(2) { animation-delay: -1.4s; }
+.orb:nth-child(3) { animation-delay: -2.8s; }
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%       { transform: scale(1.20); opacity: 0.88; }
+}
+
+/* ══ Header canvas ══ */
+.header-canvas-wrap { position: relative; overflow: hidden; }
+
+/* ══ Notification dot ══ */
+.notif-dot {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid transparent;
+  animation: notif-pop 2s ease-in-out infinite;
+}
+@keyframes notif-pop {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.3); }
+}
+
+/* Utility */
+.hover\:bg-white\/8:hover  { background-color: rgba(255,255,255,0.08); }
+.hover\:bg-white\/12:hover { background-color: rgba(255,255,255,0.12); }
+.border-white\/8           { border-color: rgba(255,255,255,0.08); }
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input::-webkit-credentials-auto-fill-button { display: none !important; }
+
+/* ══ Legacy bg-animated — keeps all other pages working ══
+   These pages (Students, Subjects, Sections, Enrollments,
+   Summary, Profile) still use this class. They'll get a
+   proper retheme later alongside the Dashboard treatment. */
+.bg-animated {
+  background: linear-gradient(135deg,
+    #0a1628, #0d2a54, #1a3a7a, #0d2a54, #0a1628);
+  background-size: 300% 300%;
+  animation: hue-cycle 18s ease infinite;
+  min-height: 100vh;
+}
