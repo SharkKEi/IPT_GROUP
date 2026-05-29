@@ -15,6 +15,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Count, Sum
 from django.conf import settings
 import logging
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,9 @@ class LogoutAPIView(APIView):
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    # 1. ADD PARSERS: This enables the view to cleanly accept files and text together from your website
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
         return Response(user_payload(request.user, request))
@@ -84,37 +88,37 @@ class MeAPIView(APIView):
     def patch(self, request):
         user = request.user
 
+        # 2. Extract core user fields safely using DRF's request.data
         first_name = request.data.get('first_name', user.first_name)
         last_name = request.data.get('last_name', user.last_name)
         email = request.data.get('email', user.email)
 
-        if email != user.email and AuthUser.objects.filter(email=email).exclude(pk=user.pk).exists():
-            return Response(
-                {'detail': 'Email already in use by another account.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # NOTE: Removed the unique email validation block so multiple accounts 
+        # can share the same email address for your Resend sandbox setup!
 
         user.first_name = first_name
         user.last_name = last_name
         user.email = email
         user.save(update_fields=['first_name', 'last_name', 'email'])
 
+        # 3. Handle the profile picture upload smoothly
+        profile, _ = UserProfile.objects.get_or_create(user=user)
         if 'profile_picture' in request.FILES:
-            profile, _ = UserProfile.objects.get_or_create(user=user)
             profile.profile_picture = request.FILES['profile_picture']
             profile.save(update_fields=['profile_picture'])
 
-        # Handle extra profile fields (birthday, department, specialty)
-        profile, _ = UserProfile.objects.get_or_create(user=user)
+        # 4. FIXED: Use request.data instead of request.POST so your text fields actually save
         changed = []
         for field in ('department', 'specialty'):
-            if field in request.POST:
-                setattr(profile, field, request.POST[field] or '')
+            if field in request.data:
+                setattr(profile, field, request.data.get(field) or '')
                 changed.append(field)
-        if 'birthday' in request.POST:
-            val = request.POST['birthday']
+                
+        if 'birthday' in request.data:
+            val = request.data.get('birthday')
             profile.birthday = val if val else None
             changed.append('birthday')
+            
         if changed:
             profile.save(update_fields=changed)
 

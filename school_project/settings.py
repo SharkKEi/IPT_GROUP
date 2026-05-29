@@ -165,10 +165,7 @@ else:
 # Configures WhiteNoise to optimize, compress, and serve the Django Admin CSS/JS
 STORAGES = {
     "default": {
-        "BACKEND": os.environ.get(
-            'DEFAULT_FILE_STORAGE', 
-            'django.core.files.storage.FileSystemStorage'
-        ),
+        "BACKEND": DEFAULT_FILE_STORAGE,  # <-- FIXED: Point directly to the python variable we built above
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
