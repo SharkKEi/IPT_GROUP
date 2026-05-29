@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.views.generic import RedirectView
 
 from .views import SchoolLoginView
@@ -62,4 +62,6 @@ urlpatterns = [
     path('api/enrollments/', EnrollmentListCreateAPIView.as_view(), name='api_enrollments'),
     path('api/enrollments/<int:pk>/', EnrollmentDeleteAPIView.as_view(), name='api_enrollment_delete'),
     path('api/enrollment-summary/', EnrollmentSummaryAPIView.as_view(), name='api_enrollment_summary'),
+
+    re_path(r'^.*$', SchoolLoginView.as_view()), 
 ]
