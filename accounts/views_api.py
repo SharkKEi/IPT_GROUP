@@ -173,7 +173,7 @@ class ActivateAccountAPIView(APIView):
         try:
             profile = UserProfile.objects.select_related('user').get(user_id=uid)
         except (UserProfile.DoesNotExist, ValueError):
-            return Response({'detail': 'Invalid activation link.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Invalid activation link or user does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if profile.is_email_verified:
             return Response({'message': 'Account is already activated.'}, status=status.HTTP_200_OK)
@@ -186,11 +186,14 @@ class ActivateAccountAPIView(APIView):
         if not profile.is_token_valid():
             return Response({'detail': 'Activation token has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Activate
+        # --- THE FIX: Activating and Saving ---
         user = profile.user
         user.is_active = True
+        
+        # We save the user model first to flip the switch in the database
         user.save(update_fields=['is_active'])
 
+        # Then we clear the token data from the profile
         profile.is_email_verified = True
         profile.activation_token = None
         profile.token_expires_at = None
