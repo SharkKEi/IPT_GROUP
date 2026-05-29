@@ -196,7 +196,6 @@ function App() {
       </div>
     </div>
   )
-  if (authLoading) return <PageLoader />
 
   return (
     <>
@@ -205,16 +204,18 @@ function App() {
       <AnimatePresence mode="wait">
         <Suspense fallback={<PageLoader />}>
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage} />
-            <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
+
+            {/* ✅ Public routes — render immediately, no auth wait */}
             <Route path="/activate" element={<ActivatePage />} />
+            <Route path="/register" element={<RegisterPage nightMode={nightMode} onToggleNight={() => setNightMode(n => !n)} />} />
+
+            {/* Everything else waits for auth to resolve */}
+            <Route path="/" element={
+              authLoading ? <PageLoader /> : (isLoggedIn ? <Navigate to="/dashboard" replace /> : loginPage)
+            } />
 
             <Route element={<ProtectedLayout />}>
-
-              {/* OLD DASHBOARD: Stays exactly as it was, outside the Shell */}
               <Route path="/dashboard" element={<Dashboard {...shellProps} />} />
-
-              {/* NEW PAGES: Wrapped inside the DashboardShell */}
               <Route element={<DashboardShell {...shellProps} />}>
                 <Route path="/profile" element={<ProfilePage {...shellProps} onProfileUpdate={handleProfileUpdate} />} />
                 <Route path="/students" element={<StudentsPage {...shellProps} />} />
@@ -224,8 +225,8 @@ function App() {
                 <Route path="/summary" element={<EnrollmentSummaryPage {...shellProps} />} />
                 <Route path="/users" element={isAdmin(user?.role) ? <AdminUsersPage /> : <Navigate to="/dashboard" replace />} />
               </Route>
-
             </Route>
+
           </Routes>
         </Suspense>
       </AnimatePresence>

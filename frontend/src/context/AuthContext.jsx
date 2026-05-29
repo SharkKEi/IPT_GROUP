@@ -27,10 +27,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   // ── Restore session on page refresh ──
+  // Replace the useEffect in AuthContext.jsx with this:
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLoading(false); // give up waiting after 10 seconds
+    }, 10000);
+
     refreshUser()
-      .catch(() => setUser(null)) // not logged in, that's fine
-      .finally(() => setLoading(false));
+      .catch(() => setUser(null))
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
   }, []);
 
   const login = useCallback(async (credentials) => {
