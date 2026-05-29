@@ -62,6 +62,7 @@ if os.environ.get('USE_CLOUDINARY', '').lower() in ('1', 'true', 'yes'):
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,7 +142,11 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # <-- ADDED THIS LINE
 
 # Media files (user uploads)
 MEDIA_URL = '/media/'
@@ -156,6 +161,19 @@ if os.environ.get('USE_CLOUDINARY', '').lower() in ('1', 'true', 'yes'):
     }
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+# Configures WhiteNoise to optimize, compress, and serve the Django Admin CSS/JS
+STORAGES = {
+    "default": {
+        "BACKEND": os.environ.get(
+            'DEFAULT_FILE_STORAGE', 
+            'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

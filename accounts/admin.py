@@ -1,5 +1,16 @@
 from django.contrib import admin
 from .models import Enrollment, Section, Student, Subject
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+# 1. Unregister the default built-in Django User admin
+admin.site.unregister(User)
+
+# 2. Register your custom version that displays the is_active column
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    # This explicit list defines the columns shown on the dashboard table
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff')
 
 
 @admin.register(Student)
